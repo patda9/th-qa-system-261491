@@ -1,0 +1,806 @@
+{
+    "version": "v1.0",
+    "data_set_name": "Sample data set",
+    "data": [
+        {
+            "question_id": 1,
+            "question": "เอเลียนส์เป็นภาพยนตร์แนวไหน",
+            "answer": "นิยายวิทยาศาสตร์แอคชั่น",
+            "answer_begin_position ": 149,
+            "answer_end_position": 172,
+            "article_id": 473065
+        },
+        {
+            "question_id": 2,
+            "question": "พระเจ้าอาฟองโซที่ 1 แห่งโปรตุเกส เป็นผู้สืบเชื้อสายจากราชวงศ์ใด",
+            "answer": "ราชวงศ์กาเปเตียง",
+            "answer_begin_position ": 218,
+            "answer_end_position": 234,
+            "article_id": 289367
+        },
+        {
+            "question_id": 3,
+            "question": "เฝิง เส้าเฟิง รับบทอะไรใน The Palace",
+            "answer": "องค์ชาย 8",
+            "answer_begin_position ": 362,
+            "answer_end_position": 371,
+            "article_id": 639294
+        },
+        {
+            "question_id": 4,
+            "question": "หม่อมราชวงศ์กุลปราโมทย์ จิรประวัติ ราชสกุลเดิมคืออะไร",
+            "answer": "สวัสดิกุล",
+            "answer_begin_position ": 194,
+            "answer_end_position": 203,
+            "article_id": 619806
+        },
+        {
+            "question_id": 5,
+            "question": "ชิงชัน เป็นพืชชนิดใด",
+            "answer": "ไม้ยืนต้น",
+            "answer_begin_position ": 107,
+            "answer_end_position": 116,
+            "article_id": 135329
+        },
+        {
+            "question_id": 6,
+            "question": "แฝดไข่ร่วมคืออะไร",
+            "answer": "ลูกทั้งสองเจริญมาจากไซโกตเดียวแล้วจึงแยกและสร้างเป็นสองเอ็มบริโอ",
+            "answer_begin_position ": 210,
+            "answer_end_position": 274,
+            "article_id": 754945
+        },
+        {
+            "question_id": 7,
+            "question": "ทูน หิรัญทรัพย์ มีชื่อจริงว่า โรเบิร์ต โจเซฟ เชสเปเดส เป็นลูกครึ่งไทย กับชาติใด",
+            "answer": "ฟิลิปปินส์",
+            "answer_begin_position ": 278,
+            "answer_end_position": 288,
+            "article_id": 124252
+        },
+        {
+            "question_id": 8,
+            "question": "สมเด็จพระราชินีนาถพระองค์เดียวของสเปนมีพระนามว่าอะไร",
+            "answer": "สมเด็จพระราชินีนาถอีซาเบลที่ 2 แห่งสเปน",
+            "answer_begin_position ": 155,
+            "answer_end_position": 194,
+            "article_id": 524853
+        },
+        {
+            "question_id": 9,
+            "question": "ดึกแล้วคุณขา เป็นภาพยนตร์แนวใด",
+            "answer": "รัก โรแมนติก",
+            "answer_begin_position ": 253,
+            "answer_end_position": 265,
+            "article_id": 184872
+        },
+        {
+            "question_id": 10,
+            "question": "วิทยาลัยอาชีวศึกษาเสาวภา  เป็นวิทยาลัยด้านใด",
+            "answer": "คหกรรมและศิลปกรรม",
+            "answer_begin_position ": 231,
+            "answer_end_position": 248,
+            "article_id": 59653
+        },
+        {
+            "question_id": 11,
+            "question": "หม่อมราชวงศ์ดวงใจเป็นธิดาของหม่อมองค์ใด",
+            "answer": "หม่อมเจ้าสุทัศน์",
+            "answer_begin_position ": 250,
+            "answer_end_position": 266,
+            "article_id": 594113
+        },
+        {
+            "question_id": 12,
+            "question": "แอนนา ฟาริส เกิดเมื่อไร",
+            "answer": "29 พฤศจิกายน ค.ศ. 1976",
+            "answer_begin_position ": 124,
+            "answer_end_position": 146,
+            "article_id": 311295
+        },
+        {
+            "question_id": 13,
+            "question": "หม่อมเจ้าประสพสุข ศุขสวัสดิ เป็นพระโอรสของผู้ใด",
+            "answer": "พระเจ้าบรมวงศ์เธอ พระองค์เจ้าศุขสวัสดี กรมหลวงอดิศรอุดมเดช กับหม่อมเจริญ ศุขสวัสดิ ณ อยุธยา",
+            "answer_begin_position ": 1170,
+            "answer_end_position": 1261,
+            "article_id": 225020
+        },
+        {
+            "question_id": 14,
+            "question": "เฮโจเกียว หรือ เฮเซเกียว เป็นเมืองหลวงโบราณของประเทศอะไร",
+            "answer": "ประเทศญี่ปุ่น",
+            "answer_begin_position ": 142,
+            "answer_end_position": 155,
+            "article_id": 32031
+        },
+        {
+            "question_id": 15,
+            "question": "ซานเตียโก กาลาตราบา บัลส์ เกิดเมื่อไร",
+            "answer": "วันที่ 28 กรกฎาคม ค.ศ. 1951",
+            "answer_begin_position ": 240,
+            "answer_end_position": 267,
+            "article_id": 287905
+        },
+        {
+            "question_id": 16,
+            "question": "มหาวิทยาลัยคอร์เนลเป็นมหาวิทยาลัยเอกชนในไอวีลีกตั้งอยู่ที่เมืองใด",
+            "answer": "เมืองอิทาคา",
+            "answer_begin_position ": 173,
+            "answer_end_position": 184,
+            "article_id": 32941
+        },
+        {
+            "question_id": 17,
+            "question": "วัดเขาจีนแล อยู่ในจังหวัดอะไร",
+            "answer": "จังหวัดลพบุรี",
+            "answer_begin_position ": 182,
+            "answer_end_position": 195,
+            "article_id": 284891
+        },
+        {
+            "question_id": 18,
+            "question": "ฟังก์ชันของสมการกำลังสองสามารถวาดกราฟบนระบบพิกัดคาร์ทีเซียนได้รูปเส้นโค้งอะไร",
+            "answer": "พาราโบลา",
+            "answer_begin_position ": 481,
+            "answer_end_position": 489,
+            "article_id": 116292
+        },
+        {
+            "question_id": 19,
+            "question": "นุ้ย เชิญยิ้ม มีลูกชายกับ ตั๊ก ศิริพร ชื่อว่าอะไร",
+            "answer": "ภูสิษฐ์ เอี่ยมสุข",
+            "answer_begin_position ": 371,
+            "answer_end_position": 388,
+            "article_id": 265936
+        },
+        {
+            "question_id": 20,
+            "question": "เต้ย จรินทร์พร เข้าสู่วงการมายา จากการประกวดเวทีใด",
+            "answer": "Utip Freshy Idol 2007",
+            "answer_begin_position ": 948,
+            "answer_end_position": 969,
+            "article_id": 256704
+        },
+        {
+            "question_id": 21,
+            "question": "จีนกันส์ฉบับปฐมฤกษ์เปิดตัวเมื่อใด",
+            "answer": "เดือนกันยายน 2550",
+            "answer_begin_position ": 794,
+            "answer_end_position": 811,
+            "article_id": 323926
+        },
+        {
+            "question_id": 22,
+            "question": "สโมสรฟุตบอลใดในพรีเมียร์ลีก อยู่ย่านฮอลโลเวย์ ในกรุงลอนดอน ประเทศอังกฤษ",
+            "answer": "สโมสรฟุตบอลอาร์เซนอล",
+            "answer_begin_position ": 113,
+            "answer_end_position": 133,
+            "article_id": 5446
+        },
+        {
+            "question_id": 23,
+            "question": "กระสวยอวกาศแอตแลนติสปฏิบัติภารกิจจนถึงปี พ.ศ. อะไร",
+            "answer": "พ.ศ. 2553",
+            "answer_begin_position ": 584,
+            "answer_end_position": 593,
+            "article_id": 99585
+        },
+        {
+            "question_id": 24,
+            "question": "คาร์โรไลน์ เอมมา สปริงเก็ตต์ เป็นที่รู้จักในชื่ออะไร",
+            "answer": "คารีสา สปริงเก็ตต์",
+            "answer_begin_position ": 188,
+            "answer_end_position": 206,
+            "article_id": 718502
+        },
+        {
+            "question_id": 25,
+            "question": "เมืองหลักของจังหวัดคางาวะคือเมืองใด",
+            "answer": "ทากามัตสึ",
+            "answer_begin_position ": 182,
+            "answer_end_position": 191,
+            "article_id": 194894
+        },
+        {
+            "question_id": 26,
+            "question": "เป็ด เชิญยิ้ม จบ ดร. จากมหาวิทยาลัยใด",
+            "answer": "มหาวิทยาลัยเกษตรศาสตร์",
+            "answer_begin_position ": 748,
+            "answer_end_position": 770,
+            "article_id": 78088
+        },
+        {
+            "question_id": 27,
+            "question": "แคลร์ มาร์กาเร็ต คอร์เล็ตต์พากษ์เสียงเป็นใครในเรื่องมายลิตเติ้ลโพนี่มิตรภาพอันแสนวิเศษ",
+            "answer": "สวีตตี้เบลล์",
+            "answer_begin_position ": 220,
+            "answer_end_position": 232,
+            "article_id": 929694
+        },
+        {
+            "question_id": 28,
+            "question": "เจ้าหญิงคลอทิลด์ เจ้าหญิงแห่งเวนิซ มีพระนามเดิมว่าอะไร",
+            "answer": "นางสาวคลอทิลด์ มารี ปาสคาลล์ คูโร่",
+            "answer_begin_position ": 530,
+            "answer_end_position": 564,
+            "article_id": 857573
+        },
+        {
+            "question_id": 29,
+            "question": "ยอดมนู ภมรมนตรี มีชื่อเล่นว่าอะไร",
+            "answer": "ยอด",
+            "answer_begin_position ": 134,
+            "answer_end_position": 137,
+            "article_id": 268605
+        },
+        {
+            "question_id": 30,
+            "question": "ใครเป็นผู้นำแดงไทย ลายคราม เข้าสู่วงการเพลง",
+            "answer": "เทพ ประทานพร",
+            "answer_begin_position ": 490,
+            "answer_end_position": 502,
+            "article_id": 116275
+        },
+        {
+            "question_id": 31,
+            "question": "\"หนึ่งต่อเจ็ด\" ออกฉายในปีใด",
+            "answer": "พ.ศ. 2501",
+            "answer_begin_position ": 185,
+            "answer_end_position": 194,
+            "article_id": 397951
+        },
+        {
+            "question_id": 32,
+            "question": "ปีใดเป็นปีสุดท้ายที่ใช้กร็องปาแลในการจัดแสดงนวัตกรรมยุคใหม่ก่อนจะเป็นสถานที่จัดงานศิลปะ",
+            "answer": "ค.ศ.1947",
+            "answer_begin_position ": 1779,
+            "answer_end_position": 1787,
+            "article_id": 517724
+        },
+        {
+            "question_id": 33,
+            "question": "ฮันส์ คริสเทียน เออร์สเตด เป็นศาสตราจารย์ภาควิชาฟิสิกส์ ประจำมหาวิทยาลัยอะไร",
+            "answer": "มหาวิทยาโคเปนเฮเกน",
+            "answer_begin_position ": 427,
+            "answer_end_position": 445,
+            "article_id": 156628
+        },
+        {
+            "question_id": 34,
+            "question": "สามีของ ปิ่น เก็จมณี คือใคร",
+            "answer": "เจตริน วรรธนะสิน",
+            "answer_begin_position ": 831,
+            "answer_end_position": 847,
+            "article_id": 280159
+        },
+        {
+            "question_id": 35,
+            "question": "อัลโด ฟัน ไอก์ได้รับรางวัลเหรียญทองจากใคร",
+            "answer": "ราชสถาบันสถาปนิกอังกฤษ (Royal Institute of British Architects, RIBA)",
+            "answer_begin_position ": 848,
+            "answer_end_position": 916,
+            "article_id": 79555
+        },
+        {
+            "question_id": 36,
+            "question": "ประเทศกัวเตมาลา แยกตัวออกจากสหพันธ์สาธารณรัฐอะไร",
+            "answer": "สหพันธ์สาธารณรัฐอเมริกากลาง",
+            "answer_begin_position ": 1295,
+            "answer_end_position": 1322,
+            "article_id": 313093
+        },
+        {
+            "question_id": 37,
+            "question": "ในช่วงค.ศ. 1992 - 1999 นาอูรูมีระบบการปกครองส่วนท้องถิ่นที่มีชื่อว่าอะไร",
+            "answer": "สภาเกาะนาอูรู",
+            "answer_begin_position ": 7265,
+            "answer_end_position": 7278,
+            "article_id": 2896
+        },
+        {
+            "question_id": 38,
+            "question": "ตำแหน่งในทีมบาสเกตบอลที่แมจิก จอห์นสัน เล่นคือตำแหน่งอะไร",
+            "answer": "ตำแหน่ง พอยท์การ์ด",
+            "answer_begin_position ": 351,
+            "answer_end_position": 369,
+            "article_id": 17348
+        },
+        {
+            "question_id": 39,
+            "question": "ผู้หญิงไทยคนที่ 2 ที่ได้รับตำแหน่งมิสเอเชียแปซิฟิก มีชื่อว่าอะไร",
+            "answer": "ปรียานุช ปานประดับ",
+            "answer_begin_position ": 111,
+            "answer_end_position": 129,
+            "article_id": 94756
+        },
+        {
+            "question_id": 40,
+            "question": "นักบุญทาอีสในคริสต์ศตวรรษที่ 4เป็นชาวอะไร",
+            "answer": "ชาวอียิปต์",
+            "answer_begin_position ": 291,
+            "answer_end_position": 301,
+            "article_id": 331054
+        },
+        {
+            "question_id": 41,
+            "question": "คาบสมุทรจัตแลนด์เป็นคาบสมุทรในทวีปใด",
+            "answer": "ทวีปยุโรป",
+            "answer_begin_position ": 184,
+            "answer_end_position": 193,
+            "article_id": 43513
+        },
+        {
+            "question_id": 42,
+            "question": "นักแสดงหญิงในภาพยนตร์เรื่อง มนต์รักลูกทุ่งที่แสดงร่วมกับเก่งกาจ จงใจพระ และต่อมากลายเป็นภรรยาของเขามีชื่อว่าอะไร",
+            "answer": "บุปผา สายชล",
+            "answer_begin_position ": 521,
+            "answer_end_position": 532,
+            "article_id": 130642
+        },
+        {
+            "question_id": 43,
+            "question": "ปู่ของเอมี่ กลิ่นประทุม คือใคร",
+            "answer": "นายทวิช กลิ่นประทุม",
+            "answer_begin_position ": 606,
+            "answer_end_position": 625,
+            "article_id": 149733
+        },
+        {
+            "question_id": 44,
+            "question": "ไช่ อิงเหวินเข้าดำรงตำแหน่งประธานาธิบดีเมื่อไหร่",
+            "answer": "วันที่ 20 พฤษภาคม ค.ศ. 2016",
+            "answer_begin_position ": 2457,
+            "answer_end_position": 2484,
+            "article_id": 758984
+        },
+        {
+            "question_id": 45,
+            "question": "Belem Tower ตั้งอยู่ที่เมืองลิสบอนซึ่งเป็นเมืองหลวงของประเทศอะไร",
+            "answer": "ประเทศโปรตุเกส",
+            "answer_begin_position ": 157,
+            "answer_end_position": 171,
+            "article_id": 880441
+        },
+        {
+            "question_id": 46,
+            "question": "สะเออะ เป็นอาหารของภาคใดในประเทศไทย",
+            "answer": "อีสาน",
+            "answer_begin_position ": 105,
+            "answer_end_position": 110,
+            "article_id": 228555
+        },
+        {
+            "question_id": 47,
+            "question": "ใครเป็นผู้ประพันธ์เรื่อง พี่น้อง 2 เลือด",
+            "answer": "ปาณรวัฐ กิตติกรเจริญ",
+            "answer_begin_position ": 137,
+            "answer_end_position": 157,
+            "article_id": 791681
+        },
+        {
+            "question_id": 48,
+            "question": "บุตรสาวของท่านผู้หญิงจรุงจิตต์ ทีขะระ เป็นใคร",
+            "answer": "นางปิยวรา ทีขะระ เนตรน้อย",
+            "answer_begin_position ": 603,
+            "answer_end_position": 628,
+            "article_id": 289696
+        },
+        {
+            "question_id": 49,
+            "question": "รหัสประจำยานของกระสวยอวกาศชาเลนเจอร์คืออะไร",
+            "answer": "OV-099",
+            "answer_begin_position ": 160,
+            "answer_end_position": 166,
+            "article_id": 166212
+        },
+        {
+            "question_id": 50,
+            "question": "ดอกไม้ ไนน์มา กับขาหมู ออกฉายเมื่อใด",
+            "answer": "10 มิถุนายน พ.ศ. 2539",
+            "answer_begin_position ": 212,
+            "answer_end_position": 233,
+            "article_id": 281254
+        },
+        {
+            "question_id": 51,
+            "question": "ละครเรื่อง พายุเทวดา ถูกตัดจบอย่างกระทันหันหลังจากฉายไปได้กี่ตอน",
+            "answer": "14",
+            "answer_begin_position ": 478,
+            "answer_end_position": 480,
+            "article_id": 610200
+        },
+        {
+            "question_id": 52,
+            "question": "พระเจ้าเล่าเสี้ยน เป็นบุตร ของใคร",
+            "answer": "พระเจ้าเล่าปี่",
+            "answer_begin_position ": 339,
+            "answer_end_position": 353,
+            "article_id": 133695
+        },
+        {
+            "question_id": 53,
+            "question": "คู่สมรสของนิพัทธ์ ทองเล็ก คือใคร",
+            "answer": "ทันตแพทย์หญิง รัตนาวดี ทองเล็ก",
+            "answer_begin_position ": 540,
+            "answer_end_position": 570,
+            "article_id": 568011
+        },
+        {
+            "question_id": 54,
+            "question": "กูร์ญิกซับแชเป็นสโมสรฟุตบอลของประเทศใด",
+            "answer": "โปแลนด์",
+            "answer_begin_position ": 132,
+            "answer_end_position": 139,
+            "article_id": 374820
+        },
+        {
+            "question_id": 55,
+            "question": "ประเทศสิงคโปร์ ตั้งอยู่บนภูมิภาคใด",
+            "answer": "เอเชียตะวันออกเฉียงใต้",
+            "answer_begin_position ": 211,
+            "answer_end_position": 233,
+            "article_id": 1989
+        },
+        {
+            "question_id": 56,
+            "question": "แม่น้ำที่ไหลลงอ่าวเบงกอลมีความยาวอันดับที่ 28 ของโลกคือแม่น้ำอะไร",
+            "answer": "แม่น้ำพรหมบุตร",
+            "answer_begin_position ": 1471,
+            "answer_end_position": 1485,
+            "article_id": 168439
+        },
+        {
+            "question_id": 57,
+            "question": "วิชาเรียนที่ถนัดที่สุดของนักร้องสาวเค ยะซุดะ คือวิชาอะไร",
+            "answer": "ภาษาอังกฤษ",
+            "answer_begin_position ": 587,
+            "answer_end_position": 597,
+            "article_id": 47189
+        },
+        {
+            "question_id": 58,
+            "question": "สามีของเต๋า สโรชา คือใคร",
+            "answer": "เบอร์ - มนตรี ศิริชู",
+            "answer_begin_position ": 985,
+            "answer_end_position": 1005,
+            "article_id": 335989
+        },
+        {
+            "question_id": 59,
+            "question": "พระยายุตราชาเป็นใคร",
+            "answer": "พระเจ้าหงสาวดีรัชกาลที่ 14",
+            "answer_begin_position ": 181,
+            "answer_end_position": 207,
+            "article_id": 903131
+        },
+        {
+            "question_id": 60,
+            "question": "นักแสดงคนใดที่รับบทเป็นประธานบริษัทฮา ในซิตคอมบริษัท ฮา ไม่จำกัด",
+            "answer": "อาคม ปรีดากุล",
+            "answer_begin_position ": 1013,
+            "answer_end_position": 1026,
+            "article_id": 859975
+        },
+        {
+            "question_id": 61,
+            "question": "กษัตริย์แซ็กซันพระองค์ใดที่ยังได้รับการยอมรับเป็นกษัตริย์ของอังกฤษทั้งหมดเป็นพระองค์แรก",
+            "answer": "เอ็กเบิร์ต",
+            "answer_begin_position ": 141,
+            "answer_end_position": 151,
+            "article_id": 881909
+        },
+        {
+            "question_id": 62,
+            "question": "ที่ตั้งของวัดหาดเสือเต้นอยู่ในจังหวัดอะไร",
+            "answer": "จังหวัดอุตรดิตถ์",
+            "answer_begin_position ": 192,
+            "answer_end_position": 208,
+            "article_id": 108867
+        },
+        {
+            "question_id": 63,
+            "question": "แม่ของนายแพทย์จักรีวัชร มหิดล มีนามว่าอะไร",
+            "answer": "สุจาริณี วิวัชรวงศ์",
+            "answer_begin_position ": 319,
+            "answer_end_position": 338,
+            "article_id": 369809
+        },
+        {
+            "question_id": 64,
+            "question": "การต่อสู้ภายในที่รุนแรงที่สุดของกองทัพพม่ากับกองกำลังกะเหรี่ยงเกิดขึ้นที่ใด",
+            "answer": "ดินดอนสามเหลี่ยมปากแม่น้ำอิรวดี",
+            "answer_begin_position ": 2530,
+            "answer_end_position": 2561,
+            "article_id": 677327
+        },
+        {
+            "question_id": 65,
+            "question": "สามีของอิวานกา ทรัมป์ คือใคร",
+            "answer": "จาเร็ด คัชเนอร์",
+            "answer_begin_position ": 412,
+            "answer_end_position": 427,
+            "article_id": 888869
+        },
+        {
+            "question_id": 66,
+            "question": "ผลงานรวมเล่ม ของแอนนี ลีเบอวิตซ์ ที่ถูกตีพิมพ์เป็นหนังสือชื่อว่าอะไร",
+            "answer": "Photographs: Annie Leibovitz 1970-1990",
+            "answer_begin_position ": 2725,
+            "answer_end_position": 2763,
+            "article_id": 274752
+        },
+        {
+            "question_id": 67,
+            "question": "ใครคือพ่อบุญธรรมของเบิร์ด ธงไชย แมคอินไตย์",
+            "answer": "หม่อมเจ้าภีศเดช รัชนี",
+            "answer_begin_position ": 40568,
+            "answer_end_position": 40589,
+            "article_id": 23258
+        },
+        {
+            "question_id": 68,
+            "question": "ฉิน หวง นักแสดงชาวฮ่องกง รับบทเป็นใครในภาพยนต์โทรทัศน์เรื่อง มังกรหยก",
+            "answer": "จิวแป๊ะทง",
+            "answer_begin_position ": 164,
+            "answer_end_position": 173,
+            "article_id": 621786
+        },
+        {
+            "question_id": 69,
+            "question": "บิ๊ก พาราด๊อกซ์ จบการศึกษาระดับปริญญาตรีจากสถาบันใด",
+            "answer": "คณะนิติศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย",
+            "answer_begin_position ": 388,
+            "answer_end_position": 423,
+            "article_id": 113292
+        },
+        {
+            "question_id": 70,
+            "question": "1 ใน 3 นักร้องสมัครเล่นยอดเยี่ยมแห่งเอเซีย ร่วมกับ นันทิดา แก้วบัวสาย และมณีนุช เสมรสุต คือศิลปินคนใด",
+            "answer": "รัดเกล้า อามระดิษ",
+            "answer_begin_position ": 111,
+            "answer_end_position": 128,
+            "article_id": 239363
+        },
+        {
+            "question_id": 71,
+            "question": "คะกุดะ ก่อตั้งขึ้นเมื่อใด",
+            "answer": "เดือนตุลาคม ค.ศ. 1958",
+            "answer_begin_position ": 154,
+            "answer_end_position": 175,
+            "article_id": 462344
+        },
+        {
+            "question_id": 72,
+            "question": "ประเทศปานามา ตั้งอยู่บนทวีปใด",
+            "answer": "อเมริกากลาง",
+            "answer_begin_position ": 308,
+            "answer_end_position": 319,
+            "article_id": 17467
+        },
+        {
+            "question_id": 73,
+            "question": "ก่อนออกบวชหลวงปู่ลี กุสลธโร ได้แต่งงานอยู่กินกับภรรยาเป็นระยะเวลาเท่าไร",
+            "answer": "๒ ปี ๖ เดือน",
+            "answer_begin_position ": 895,
+            "answer_end_position": 907,
+            "article_id": 455844
+        },
+        {
+            "question_id": 74,
+            "question": "ในรัฐบาลนางสาวยิ่งลักษณ์ ชินวัตร นายวิเชษฐ์ เกษมทองศรี รับตำแหน่งอะไร",
+            "answer": "รัฐมนตรีว่าการกระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม",
+            "answer_begin_position ": 139,
+            "answer_end_position": 190,
+            "article_id": 349249
+        },
+        {
+            "question_id": 75,
+            "question": "ค่าก่อสร้างเขื่อนปากมูล มีจำนวนทั้งสิ้นเท่าไร",
+            "answer": "240 ล้านดอลลาร์สหรัฐ",
+            "answer_begin_position ": 315,
+            "answer_end_position": 335,
+            "article_id": 56789
+        },
+        {
+            "question_id": 76,
+            "question": "อาชีพก่อนหน้าที่เยี่ยกวนจะมาเป็นนักเขียนคืออะไร",
+            "answer": "งานธนาคาร",
+            "answer_begin_position ": 254,
+            "answer_end_position": 263,
+            "article_id": 673524
+        },
+        {
+            "question_id": 77,
+            "question": "พระราชโอรสของท้าวศรีบุญเรือง มีพระนามว่าอะไร",
+            "answer": "พระเจ้ายอดเชียงราย",
+            "answer_begin_position ": 891,
+            "answer_end_position": 909,
+            "article_id": 118546
+        },
+        {
+            "question_id": 78,
+            "question": "ในการแข่งขันรัสเซียนพีระมิด อนาสตาเซีย ลูปโปวา เป็นแชมป์ยุโรปกี่สมัย",
+            "answer": "สองสมัย",
+            "answer_begin_position ": 223,
+            "answer_end_position": 230,
+            "article_id": 623473
+        },
+        {
+            "question_id": 79,
+            "question": "โทะชิอะกิ โยะชิดะได้เป็นหัวหน้าฝึกสอนให้แก่ทีมไพดอเนียร์เรดวิงส์ในปีค.ศ.ใด",
+            "answer": "ค.ศ. 2006",
+            "answer_begin_position ": 1463,
+            "answer_end_position": 1472,
+            "article_id": 642610
+        },
+        {
+            "question_id": 80,
+            "question": "เอ็ดเวิร์ดได้รับการสวมมงกุฎ ณ คิงสตันเหนือเธมส์ด้วยพระชนมพรรษากี่พรรษา",
+            "answer": "พระชนมพรรษา 13 พรรษา",
+            "answer_begin_position ": 3632,
+            "answer_end_position": 3652,
+            "article_id": 884687
+        },
+        {
+            "question_id": 81,
+            "question": "ผู้ที่ให้ข้อมูลด้านอาหารและโภชนาการ กับชินจิ ไซโจ คือใคร",
+            "answer": "เคย์โกะ โอยามา",
+            "answer_begin_position ": 213,
+            "answer_end_position": 227,
+            "article_id": 223854
+        },
+        {
+            "question_id": 82,
+            "question": "แดงเหนือ เกียรติอรดี มีสถิติการชนะ 17 ครั้ง โดยในจำนวนนี้ มีการชนะน็อคกี่ครั้ง",
+            "answer": "5",
+            "answer_begin_position ": 171,
+            "answer_end_position": 172,
+            "article_id": 141805
+        },
+        {
+            "question_id": 83,
+            "question": "ขวัญฤดี กลมกล่อม นักแสดงชาวไทย  เข้าวงการโดยแสดงละครเรื่องแรกให้กับช่องอะไร",
+            "answer": "ทางช่อง 3",
+            "answer_begin_position ": 352,
+            "answer_end_position": 361,
+            "article_id": 550489
+        },
+        {
+            "question_id": 84,
+            "question": "ใครเป็นผู้ชักชวนสมชาย เข็มกลัด เข้าวงการบันเทิง",
+            "answer": "พจน์ อานนท์",
+            "answer_begin_position ": 522,
+            "answer_end_position": 533,
+            "article_id": 51658
+        },
+        {
+            "question_id": 85,
+            "question": "ทางตอนเหนือของจังหวัดฮีลากังซามาร์มีพื้นที่ติดต่อกับเกาะอะไร",
+            "answer": "เกาะซามาร์",
+            "answer_begin_position ": 238,
+            "answer_end_position": 248,
+            "article_id": 940898
+        },
+        {
+            "question_id": 86,
+            "question": "พลตำรวจเอกเฉลิมเดช ชมพูนุชได้รับแต่งตั้งเป็นโฆษกสำนักรัฐมนตรีในปีใด",
+            "answer": "พ.ศ. 2548",
+            "answer_begin_position ": 685,
+            "answer_end_position": 694,
+            "article_id": 344285
+        },
+        {
+            "question_id": 87,
+            "question": "แซ็งเตมีลียง ตั้งอยู่ในประเทศใด",
+            "answer": "ประเทศฝรั่งเศส",
+            "answer_begin_position ": 197,
+            "answer_end_position": 211,
+            "article_id": 519396
+        },
+        {
+            "question_id": 88,
+            "question": "พระครูพิศาลธรรมโกศล มีนามปากกาว่าอะไร",
+            "answer": "แพรเยื่อไม้",
+            "answer_begin_position ": 319,
+            "answer_end_position": 330,
+            "article_id": 72005
+        },
+        {
+            "question_id": 89,
+            "question": "เกาะกระดานตั้งอยู่ในจังหวัดใด",
+            "answer": "จังหวัดตรัง",
+            "answer_begin_position ": 108,
+            "answer_end_position": 119,
+            "article_id": 185438
+        },
+        {
+            "question_id": 90,
+            "question": "ไชยา สุริยัน มีชื่อจริงว่าอะไร",
+            "answer": "หม่อมหลวงอภิรัฐ จรูญโรจน์",
+            "answer_begin_position ": 127,
+            "answer_end_position": 152,
+            "article_id": 106243
+        },
+        {
+            "question_id": 91,
+            "question": "กุลธิดา พริ้งเกษมชัย เข้าประกวดในรายการสงครามนางงาม the casting project รับบทเป็นใคร",
+            "answer": "ลูกน้ำ นางงามเลสเบี้ยน",
+            "answer_begin_position ": 486,
+            "answer_end_position": 508,
+            "article_id": 795404
+        },
+        {
+            "question_id": 92,
+            "question": "การปกครองส่วนท้องถิ่นอำเภอสบเมยประกอบด้วยองค์กรปกครองส่วนท้องถิ่นกี่แห่ง",
+            "answer": "6 แห่ง",
+            "answer_begin_position ": 810,
+            "answer_end_position": 816,
+            "article_id": 55850
+        },
+        {
+            "question_id": 93,
+            "question": "เรวิญานันท์ ทาเกิด หรือ เบญ บ้านเกิดอยู่จังหวัดอะไร",
+            "answer": "จังหวัดลำพูน",
+            "answer_begin_position ": 399,
+            "answer_end_position": 411,
+            "article_id": 682025
+        },
+        {
+            "question_id": 94,
+            "question": "กูดฟิลลิงเป็นเพลงจากอัลบั้มใด",
+            "answer": "ไวลด์วันส์",
+            "answer_begin_position ": 199,
+            "answer_end_position": 209,
+            "article_id": 491752
+        },
+        {
+            "question_id": 95,
+            "question": "ชื่อท่าอากาศยานนานาชาติโออาร์ แทมโบ ตั้งตามชื่อใคร",
+            "answer": "โอลิเวอร์ เรจินัลด์ แทมโบ (Oliver Reginald Tambo)",
+            "answer_begin_position ": 639,
+            "answer_end_position": 688,
+            "article_id": 84642
+        },
+        {
+            "question_id": 96,
+            "question": "ภรรยาของนายแพทย์วิชัย ชัยจิตวณิชกุล คือใคร",
+            "answer": "นางจารุวรรณ ชัยจิตวณิชกุล",
+            "answer_begin_position ": 532,
+            "answer_end_position": 557,
+            "article_id": 550941
+        },
+        {
+            "question_id": 97,
+            "question": "กบ ปภัสรา ชีวิตส่วนตัวได้สมรสกับนักการเมืองท่านใด",
+            "answer": "นายพรเทพ เตชะไพบูลย์",
+            "answer_begin_position ": 639,
+            "answer_end_position": 659,
+            "article_id": 294005
+        },
+        {
+            "question_id": 98,
+            "question": "บุตรชายของศาสตราจารย์ สม จาตุศรีพิทักษ์ มีชื่อว่าอะไร",
+            "answer": "นายณัฐพร จาตุศรีพิทักษ์",
+            "answer_begin_position ": 1096,
+            "answer_end_position": 1119,
+            "article_id": 422621
+        },
+        {
+            "question_id": 99,
+            "question": "พ่อของปีเตอร์ ดรักเกอร์ ทำอาชีพอะไร",
+            "answer": "ทนายความ",
+            "answer_begin_position ": 952,
+            "answer_end_position": 960,
+            "article_id": 288055
+        },
+        {
+            "question_id": 100,
+            "question": "แม่น้ำใดไหลตัดผ่านเทือกเขาตะนาวศรี",
+            "answer": "แควใหญ่และแควน้อย",
+            "answer_begin_position ": 926,
+            "answer_end_position": 943,
+            "article_id": 373102
+        }
+    ]
+}
