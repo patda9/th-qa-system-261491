@@ -41,7 +41,7 @@ def n_word_sentence_segment(n, data):
     data = [data[i * n:(i + 1) * n] for i in range((len(data) + n - 1) // n )] 
     for i in range(len(data)):
         data[i] = ''.join(data[i]) # merge words
-    return np.asarray(data)
+    return data
 
 x = []
 i = 1
@@ -80,19 +80,26 @@ x, y = zip(*temp)
 
 # print(data)
 
-sentences = x
+sentences = list(x)
+all_sentences = [s for i in list(sentences) for s in i]
+s2id = {s: idn if not(s.isdigit()) else int(s) for idn, s in enumerate(set(all_sentences))}
+id2s = {idn: s for s, idn in s2id.items()}
+
+id_representation_sentences = []
+for s in sentences:
+    id_representation_sentences.append([s2id[i] for i in s])
 doc_ids = y
 n_sentences = max([len(i) for i in sentences])
 print(n_sentences)
 
-pad = '<PAD>'
-s_train = sentences[:int(.8 * len(sentences))]
-s_test = sentences[int(.8 * len(sentences)):]
+s_train = id_representation_sentences[:int(.8 * len(sentences))]
+s_test = id_representation_sentences[int(.8 * len(sentences)):]
 id_train = doc_ids[:int(.8 * len(sentences))]
 id_test = doc_ids[int(.8 * len(sentences)):]
 
 # word database
 # word2id = imdb.get_word_index() # value to key
+
 try:
     id2word = {i: word for word, i in word2id.items()} # key to value
     print('---review with words-id---')
@@ -113,8 +120,8 @@ except:
 from keras.preprocessing import sequence
 
 # max_words = 500 # to have same shape in each sample by padding below
-print('--------------------tr--------------------', s_train[0])
-print('--------------------te--------------------', s_test[0])
+# print('--------------------tr--------------------', s_train[0])
+# print('--------------------te--------------------', s_test[0])
 s_train = sequence.pad_sequences(s_train, maxlen=n_sentences)
 s_test = sequence.pad_sequences(s_test, maxlen=n_sentences)
 print('---example review with padded words-id---')
