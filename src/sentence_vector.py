@@ -17,18 +17,14 @@ np.random.seed(0)
 
 ### path to datasets
 path = 'C:\\Users\\Patdanai\\Desktop\\wiki-dictionary-[1-50000]'
-
 datasets = os.listdir(path)
-# print(datasets)
 
 ### random training file
 samples = []
 for i in range(100):
     random_i = np.random.randint(len(datasets))
     samples.append(int(datasets[random_i].split('.')[0]))
-
 samples = sorted(samples)
-# print(samples)
 
 ### get randomed document ids
 def get_doc_id(data):
@@ -36,124 +32,124 @@ def get_doc_id(data):
     doc_id = re.findall('\d+', tmp)
     return int(doc_id[0])
 
-### group words to n-words sentences
-def n_word_sentence_segment(n, data):
-    data = [data[i * n:(i + 1) * n] for i in range((len(data) + n - 1) // n )] 
-    for i in range(len(data)):
-        data[i] = ''.join(data[i]) # merge words
-    return data
-
 x = []
 i = 1
 for f in samples:
     dataset_path = os.path.join(path, str(f) + '.json')
     with open(dataset_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
-        # print('1231', data)
-
         for j in range(len(data)):
-            data[j] = data[j].replace('"', '').strip(' ')
             if(data[j] == ''):
                 data[j] = data[j].replace('', ' ') # remove double quotes from data
-    # print('*****', i, (data))
-    doc_id = get_doc_id(data)
-    data = n_word_sentence_segment(20, data)
     x.append(data)
-    # print(str(i) + ' -', doc_id)
     i += 1
 
-samples_ids = np.asarray(samples).reshape((len(samples), 1))
-y = doc_ids = samples_ids
-print(len(x))
-print(len(y))
+dictionary = [w for i in list(x) for w in i]
+w2id = {}
+w2id = {w: ind if not(w.isdigit()) else w for ind, w in enumerate(set(dictionary))}
+values = dictionary
 
+# for (i, w) in enumerate(set(dictionary)):
+#     try:
+#         if(not(w.isdigit())):
+#             w2id[w] = i
+#         else:
+#             w2id[int(w)] = i
+#     except ValueError:
+#         pass
+
+id2w = {idn: w for w, idn in w2id.items()}
+samples_ids = np.asarray(samples).reshape((len(samples), ))
+y = doc_ids = samples_ids
+
+# random input, output index of one sample simultaneously
 temp = list(zip(x, y))
 np.random.shuffle(temp)
 x, y = zip(*temp)
 
-# print(x[99], y[99])
+id_representation = []
+for doc in x:
+    id_representation.append([w2id[w] for w in doc])
+# print(id_representation[0], y[0])
 
-# json.dump(data, open('test.txt', 'w', encoding='utf-8-sig'), ensure_ascii=True) # save sentence
-# for i in range(len(y)):
-#     for j in range(len(data)):
-#         print(i, [data[j], y[i]])
+word_and_doc_id = []
+for i in range(len(id_representation)):
+    # word_and_doc_id += list(zip(id_representation[i], [y[i] for j in range(len(id_representation[i]))]))
+    word_and_doc_id.append(id_representation[i])
 
-# print(data)
+# print function
+# last_doc_id = max(y)
+# for i in range(len(word_and_doc_id)):
+#     print(word_and_doc_id[i], y[i])
 
-sentences = list(x)
-all_sentences = [s for i in list(sentences) for s in i]
-s2id = {s: idn if not(s.isdigit()) else int(s) for idn, s in enumerate(set(all_sentences))}
-id2s = {idn: s for s, idn in s2id.items()}
+doc_ids = np.asarray(y).reshape((len(doc_ids), ))
 
-id_representation_sentences = []
-for s in sentences:
-    id_representation_sentences.append([s2id[i] for i in s])
-doc_ids = y
-n_sentences = max([len(i) for i in sentences])
-print(n_sentences)
+from keras.utils import to_categorical
+doc_ids = to_categorical(doc_ids) # to classes
+# print(doc_ids[0][42827])
 
-s_train = id_representation_sentences[:int(.8 * len(sentences))]
-s_test = id_representation_sentences[int(.8 * len(sentences)):]
-id_train = doc_ids[:int(.8 * len(sentences))]
-id_test = doc_ids[int(.8 * len(sentences)):]
+# avrage_word_per_doc = sum([len(i) for i in id_representation]) / len(id_representation)
+# print(int(avrage_word_per_doc))
 
-# word database
-# word2id = imdb.get_word_index() # value to key
+max_word_per_doc = max([len(i) for i in id_representation])
+# print(max_word_per_doc)
 
-try:
-    id2word = {i: word for word, i in word2id.items()} # key to value
-    print('---review with words-id---')
-    print(X_train[0]) # example of x_train
-    print('---review with words---')
-    print([id2word.get(i, ' ') for i in X_train[0]]) # convert ids to words in x_train
-    print('---label---')
-    print(y_train[0]) # example of y_train
-    print()
-
-    print('Minimum review length: {}'.format(len(min((X_test + X_test), key=len))))
-    print('Maximum review length: {}'.format(len(max((X_train + X_test), key=len))))
-    print()
-except:
-    pass
+#### 20-words sentences
+n = 20
+sentences = word_and_doc_id.copy()
+for i in range(len(sentences)):
+    sentences[i] = [sentences[i][j * n:(j + 1) * n] for j in range((len(sentences[i]) + n - 1) // n )] 
+####
 
 # pad sequence TODO sentence to id
 from keras.preprocessing import sequence
+n_words_sentences = []
+for i in range(len(sentences)):
+    try:
+        n_words_sentences += list(zip(sequence.pad_sequences(sentences[i], maxlen=n), [y[i] for j in range(len(sentences[i]))]))
+    except ValueError:
+        pass
+s, d_ids = zip(*n_words_sentences)
 
-# max_words = 500 # to have same shape in each sample by padding below
-# print('--------------------tr--------------------', s_train[0])
-# print('--------------------te--------------------', s_test[0])
-s_train = sequence.pad_sequences(s_train, maxlen=n_sentences)
-s_test = sequence.pad_sequences(s_test, maxlen=n_sentences)
-print('---example review with padded words-id---')
-print(s_train[0])
-print()
-exit()
+print(s)
+
+s_train = id_representation[:int(.8 * len(id_representation))]
+s_test = id_representation[int(.8 * len(id_representation)):]
+
+# id_train = doc_ids[:int(.8 * len(sentences))]
+# id_test = doc_ids[int(.8 * len(sentences)):]
 
 # building model
 from keras import Sequential
 from keras.layers import Embedding, LSTM, Dense, Dropout
 embedding_size=64
-lstm_output = 192
+lstm_output = 128
 model=Sequential()
-model.add(Embedding(vocabulary_size, embedding_size, input_length=max_words))
+model.add(Embedding(len(id2w), embedding_size, input_length=n))
 model.add(LSTM(lstm_output))
-model.add(Dense(len(doc_ids), activation='softmax'))
+model.add(Dense(max_word_per_doc, activation='softmax'))
 # drop out regularization
 print(model.summary())
 print()
 
 # training and evaluation
-model.compile(loss='binary_crossentropy', 
+model.compile(loss='categorical_crossentropy', 
              optimizer='adam', 
              metrics=['accuracy'])
 
-batch_size = 64
-epochs = 8
-X_valid, y_valid = X_train[:batch_size], y_train[:batch_size]
-X_train2, y_train2 = X_train[batch_size:], y_train[batch_size:]
-model.fit(X_train2, y_train2, validation_data=(X_valid, y_valid), batch_size=batch_size, epochs=epochs)
-scores = model.evaluate(X_test, y_test, verbose=0)
-print('Test accuracy:', scores[1])
+batch_size = 32
+epochs = 4
+# s_valid, id_valid = s_train[:batch_size], id_train[:batch_size]
+# s_train2, id_train2 = s_train[batch_size:], id_train[batch_size:]
+# print(s_train2)
+# print(id_valid)
+# model.fit(s_train2, id_train2, validation_data=(s_valid, id_valid), batch_size=batch_size, epochs=epochs)
+# scores = model.evaluate(s_test, id_test, verbose=0)
+# print('Test accuracy:', scores[1])
 print()
 
-# save model 
+# print(s_test)
+# print(model.predict(s_test))
+print()
+
+# save model
