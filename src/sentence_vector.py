@@ -32,6 +32,7 @@ def get_doc_id(data):
     doc_id = re.findall('\d+', tmp)
     return int(doc_id[0])
 
+# get words/vocabularies from file
 x = []
 i = 1
 for f in samples:
@@ -106,28 +107,39 @@ from keras.preprocessing import sequence
 n_words_sentences = []
 for i in range(len(sentences)):
     try:
-        n_words_sentences += list(zip(sequence.pad_sequences(sentences[i], maxlen=n), [y[i] for j in range(len(sentences[i]))]))
+        n_words_sentences += list(zip(sequence.pad_sequences(sentences[i], maxlen=n), 
+                                [y[i] for j in range(len(sentences[i]))]))
     except ValueError:
         pass
-s, d_ids = zip(*n_words_sentences)
 
-print(s)
+sl, d_ids = zip(*n_words_sentences)
+# print(sl, '-----')
+# print(sl, '*****')
 
-s_train = id_representation[:int(.8 * len(id_representation))]
-s_test = id_representation[int(.8 * len(id_representation)):]
+s_train = np.asarray(sl[:int(.8 * len(sl))])
+s_test = np.asarray(sl[int(.8 * len(sl)):])
+print(s_train, s_train.shape)
 
-# id_train = doc_ids[:int(.8 * len(sentences))]
-# id_test = doc_ids[int(.8 * len(sentences)):]
+doc_id_train = np.asarray(d_ids[:int(.8 * len(d_ids))])
+doc_id_test = np.asarray(d_ids[int(.8 * len(d_ids)):])
+print(doc_id_train, doc_id_train.shape)
+
+# print(s_train[0])
 
 # building model
 from keras import Sequential
-from keras.layers import Embedding, LSTM, Dense, Dropout
+from keras.layers import Activation, Bidirectional, Embedding, LSTM, Dense, Dropout, TimeDistributed, InputLayer
 embedding_size=64
 lstm_output = 128
-model=Sequential()
-model.add(Embedding(len(id2w), embedding_size, input_length=n))
-model.add(LSTM(lstm_output))
-model.add(Dense(max_word_per_doc, activation='softmax'))
+model = Sequential()
+model.add(InputLayer(input_shape=s_train.shape)) # 3164*20
+model.add(Embedding(len(id2w), embedding_size)) 
+print(model.summary())
+model.add(Bidirectional(LSTM(lstm_output, return_sequences=True)))
+model.add(TimeDistributed(Dense(max(y) + 1)))
+model.add(Activation('softmax'))
+# model.add(LSTM(lstm_output))
+# model.add(TimeDistributed(Dense(max(y) + 1, activation='softmax',), input_shape=(20, )))
 # drop out regularization
 print(model.summary())
 print()
@@ -139,13 +151,13 @@ model.compile(loss='categorical_crossentropy',
 
 batch_size = 32
 epochs = 4
-# s_valid, id_valid = s_train[:batch_size], id_train[:batch_size]
-# s_train2, id_train2 = s_train[batch_size:], id_train[batch_size:]
+s_valid, doc_id_valid = s_train[:batch_size], doc_id_train[:batch_size]
+s_train2, doc_id_train2 = s_train[batch_size:], doc_id_train[batch_size:]
 # print(s_train2)
-# print(id_valid)
-# model.fit(s_train2, id_train2, validation_data=(s_valid, id_valid), batch_size=batch_size, epochs=epochs)
-# scores = model.evaluate(s_test, id_test, verbose=0)
-# print('Test accuracy:', scores[1])
+# print(doc_id_valid)
+model.fit(s_train2, doc_id_train2, validation_data=(s_valid, doc_id_valid), batch_size=batch_size, epochs=epochs)
+scores = model.evaluate(s_test, doc_id_test, verbose=0)
+print('Test accuracy:', scores[1])
 print()
 
 # print(s_test)

@@ -15,7 +15,7 @@ datasets = os.listdir(path)
 
 ### random training file
 samples = []
-for i in range(100):
+for i in range(1000):
     random_i = np.random.randint(len(datasets))
     samples.append(int(datasets[random_i].split('.')[0]))
 

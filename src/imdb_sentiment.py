@@ -28,7 +28,7 @@ max_words = 500 # to have same shape in each sample by padding below
 X_train = sequence.pad_sequences(X_train, maxlen=max_words)
 X_test = sequence.pad_sequences(X_test, maxlen=max_words)
 print('---example review with padded words-id---')
-print(X_train[0])
+print(X_train.shape)
 print()
 
 # building model
