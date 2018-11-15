@@ -28,7 +28,7 @@ max_words = 500 # to have same shape in each sample by padding below
 X_train = sequence.pad_sequences(X_train, maxlen=max_words)
 X_test = sequence.pad_sequences(X_test, maxlen=max_words)
 print('---example review with padded words-id---')
-print(X_train[0])
+print(X_train.shape)
 print()
 
 # building model
@@ -53,6 +53,8 @@ batch_size = 64
 epochs = 8
 X_valid, y_valid = X_train[:batch_size], y_train[:batch_size]
 X_train2, y_train2 = X_train[batch_size:], y_train[batch_size:]
+print(X_train2)
+print(y_train2.shape)
 model.fit(X_train2, y_train2, validation_data=(X_valid, y_valid), batch_size=batch_size, epochs=epochs)
 scores = model.evaluate(X_test, y_test, verbose=0)
 print('Test accuracy:', scores[1])
