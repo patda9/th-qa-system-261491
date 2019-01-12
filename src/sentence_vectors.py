@@ -58,7 +58,7 @@ id2w = {ind: w for w, ind in w2id.items()}
 
 doc_ids = samples
 doc2id = {doc_id: i for i, doc_id in enumerate(list(doc_ids))}
-print(len(doc2id))
+# print(len(doc2id))
 
 # s_train, s_test, doc_id_train, doc_id_test = [], [], [], []
 
@@ -100,8 +100,8 @@ for i in range(len(sentences)):
 temp = list(zip(flattened_sentences, flattened_doc_ids))
 # print(temp)
 np.random.shuffle(temp)
-flattened_doc_ids, flattened_doc_ids = list(zip(*temp))
-# print(flattened_sentences)
+_, flattened_doc_ids = list(zip(*temp))
+print(flattened_sentences)
 # print(flattened_doc_ids)
 
 flattened_doc_ids = np.array([np.asarray(s) for s in flattened_doc_ids])
@@ -117,26 +117,123 @@ doc_id_test = flattened_doc_ids[int(.8 * len(flattened_sentences)):]
 # print(to_categorical(doc_id_train, num_classes=len(doc_ids_remapping)).shape)
 # print(doc_id_train.shape)
 
+print(doc_id_test.shape)
+
+a = 50
+for s in s_test[a:100]:
+    id_list = []
+    s_list = []
+    for i in s:
+        id_list.append(i)
+        s_list.append(id2w[i])
+    print(id_list, doc_id_test[a])
+    print(s_list, doc_id_test[a])
+    a += 1
+
 ### model section
 from keras.layers import Activation, Bidirectional, Dense, Flatten, Embedding, InputLayer, LSTM, TimeDistributed
-from keras.models import Sequential
+from keras.models import load_model, Model, Sequential
 from keras.optimizers import Adam
 
 model = Sequential()
-model
 model.add(Embedding(len(w2id), 64, input_length=n))
 model.add(Bidirectional(LSTM(128)))
-# model.add(Flatten())
+# model.add(Flatten()) # for return_sequence=True
+model.add(Dense(32, activation='relu'))
 model.add(Dense(len(doc2id), activation='softmax'))
 
+# model = load_model('./src/sentence-vector-model.h5')
 model.compile(loss='categorical_crossentropy', optimizer=Adam(.0001), metrics=['accuracy'])
-outputs = [layer.output for layer in model.layers]
-print(outputs)
 model.summary()
 
-print(s_train[0])
-model.fit(s_train, to_categorical(doc_id_train, len(doc2id)), batch_size=32, epochs=8)
+# model.fit(s_train, to_categorical(doc_id_train, len(doc2id)), batch_size=32, epochs=8)
+# model.save('./sentence-vector-model.h5')
+intermediate_layer_model = Model(inputs=model.input,
+                                 outputs=model.get_layer(index=2).output)
+# json_architecture = model.to_json()
+
 scores = model.evaluate(s_test, to_categorical(doc_id_test, num_classes=len(doc2id)))
 print(f"{model.metrics_names[1]}: {scores[1] * 100}")
 
+predict_sample = np.asarray([s_test])
+dense1_output = intermediate_layer_model.predict(np.asarray(s_test))
 
+def generate_question(words, n=20, padding=False):
+    question_in_id = []
+    for w in words:
+        try:
+            question_in_id.append(w2id[w])
+        except KeyError:
+            question_in_id.append(w2id['--niv--'])
+    if(padding == True):
+        while(len(question_in_id) < 20):
+            question_in_id.insert(0, w2id['--pad--'])
+    return question_in_id
+
+question_sentence = generate_question(['ใน', 'แต่ละ', 'ทีม', 'จะ', 'ต้อง', 'ประกอบ', 'อะไร', 'เพื่อ', 'นำ', 'ไป', 'ติด', 'ที่', 'แท่น'], padding=True)
+question_vector = intermediate_layer_model.predict(np.asarray([question_sentence]))
+
+
+print(question_sentence)
+
+answer_sentence = s_test[126]
+answer_vector = intermediate_layer_model.predict(np.asarray([answer_sentence]))
+
+print(dense1_output.shape)
+
+shortest_sentences = []
+shortest_idx = []
+
+for i in range(len(s_test)):
+    dist = np.linalg.norm(question_vector[0] - dense1_output[i])
+
+    if(len(shortest_sentences) < 50):
+        shortest_sentences.append(dist)
+        shortest_idx.append(i)
+
+    else:
+        if(np.amax(shortest_sentences) > dist):
+            idx = np.argmax(shortest_sentences)
+            shortest_sentences[idx] = dist
+            shortest_idx[idx] = i
+
+for i in range(len(shortest_sentences)):
+    s = s_test[shortest_idx[i]]
+    print(s)
+    w_list = []
+    for w in s:
+        w_list.append(id2w[w])
+    print(w_list, doc_id_test[shortest_idx[i]])
+
+
+dist = np.linalg.norm(question_vector[0] - answer_vector[0])
+print(shortest_sentences)
+print(shortest_idx)
+print(dist)
+
+# print(question_sentence)
+# print(question_vector)
+# similar_sentence = np.array([w2id['โดย'], w2id[' '], w2id['5'], w2id[' '], w2id['ตาม'], w2id['ลำดับ'], w2id[' '], w2id['แต่'], w2id['ทั้ง'], w2id['สอง'], w2id['ทีม'], w2id['ใช้'], w2id['เส้นทาง'], w2id['พิเศษ'], w2id['ที่'], w2id['ผิด'], w2id['กฎจราจร'], w2id[' '], w2id['โดย'], w2id['ขับ'], ])
+# dense_output2 = intermediate_layer_model.predict(np.asarray([s_test[1111]]))
+# similar_output = intermediate_layer_model.predict(np.asarray([similar_sentence]))
+# print(similar_sentence)
+# file = open('diff_vec.txt', 'w')
+# file.writelines(str(dense_output.tolist()))
+# file.writelines(str(similar_output.tolist()))
+# file.writelines(str(dense_output2.tolist()))
+# file.close()
+# file = open('sentences.txt', 'w', 'utf-8')
+# file.close()
+
+prediction = model.predict(np.asarray(s_test))
+file = open('sentence-vector-outputs1.txt', 'w')
+file.writelines(str(dense1_output.tolist()))
+file.close()
+
+exit()
+# print(len(prediction))
+# for i in range(len(prediction)):
+#     if(i % 25 == 0):
+#         print(predict_sample[i], 'predict:', np.argmax(prediction[i]), 'g-truth:', doc_id_test[i])
+#         # for j in range(len(predict_sample[i])):
+#         #     print(id2w[predict_sample[i][j]])

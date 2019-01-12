@@ -32,6 +32,7 @@ print(X_train.shape)
 print()
 
 # building model
+from keras.models import Model
 from keras import Sequential
 from keras.layers import Embedding, LSTM, Dense, Dropout
 embedding_size=64
@@ -41,21 +42,31 @@ model.add(Embedding(vocabulary_size, embedding_size, input_length=max_words))
 model.add(LSTM(lstm_output))
 model.add(Dense(1, activation='sigmoid'))
 # drop out regularization
+json_model = model.to_json()
+print(json_model)
 print(model.summary())
-print()
+exit()
 
 # training and evaluation
 model.compile(loss='binary_crossentropy', 
              optimizer='adam', 
              metrics=['accuracy'])
 
+intermediate_layer_model = Model(inputs=model.input,
+                                 outputs=model.get_layer(index=0).output)
+
+intermediate_output = intermediate_layer_model.predict(X_test)
+print()
+print(intermediate_output)
+
 batch_size = 64
-epochs = 8
+epochs = 1
 X_valid, y_valid = X_train[:batch_size], y_train[:batch_size]
 X_train2, y_train2 = X_train[batch_size:], y_train[batch_size:]
 print(X_train2)
 print(y_train2.shape)
 model.fit(X_train2, y_train2, validation_data=(X_valid, y_valid), batch_size=batch_size, epochs=epochs)
+model.save('imbd-test-model.h5')
 scores = model.evaluate(X_test, y_test, verbose=0)
 print('Test accuracy:', scores[1])
 print()

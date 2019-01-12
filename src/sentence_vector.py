@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+###################### OLD VERSION ######################
 
 """ 
 tokenizing wiki-corpus 
@@ -127,6 +128,7 @@ print(doc_id_train, doc_id_train.shape)
 # print(s_train[0])
 
 # building model
+from keras.models import Model
 from keras import Sequential
 from keras.layers import Activation, Bidirectional, Embedding, LSTM, Dense, Dropout, TimeDistributed, InputLayer
 embedding_size=64
