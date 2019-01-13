@@ -58,7 +58,7 @@ id2w = {ind: w for w, ind in w2id.items()}
 
 doc_ids = samples
 doc2id = {doc_id: i for i, doc_id in enumerate(list(doc_ids))}
-# print(len(doc2id))
+print(len(doc2id))
 
 # s_train, s_test, doc_id_train, doc_id_test = [], [], [], []
 
