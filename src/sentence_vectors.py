@@ -86,6 +86,7 @@ for i in range(len(sentences)):
         # s_and_doc_id.append(list(zip(sequence.pad_sequences(sentences[i], maxlen=n), [doc_ids[i] for j in range(len(sentences[i]))])))
     except ValueError:
         pass
+# print(s)
 
 flattened_sentences = np.vstack(s)
 # for i in range(len(sentences)):
@@ -101,7 +102,7 @@ temp = list(zip(flattened_sentences, flattened_doc_ids))
 # print(temp)
 np.random.shuffle(temp)
 _, flattened_doc_ids = list(zip(*temp))
-print(flattened_sentences)
+print(flattened_doc_ids)
 # print(flattened_doc_ids)
 
 flattened_doc_ids = np.array([np.asarray(s) for s in flattened_doc_ids])

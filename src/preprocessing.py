@@ -14,7 +14,7 @@ def remove_xml(article):
     xml_close_index = 0
     for i in range(len(article)):
         if(article[i] == '>'):
-            xml_close_index = i
+            xml_close_index = i + 1
     return article[xml_close_index:]
 
 # remove english, special char, *(and stop words)  
