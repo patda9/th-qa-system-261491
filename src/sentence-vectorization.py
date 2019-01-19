@@ -81,8 +81,6 @@ for i in range(article_sentences.__len__()):
 
 # print('*', article_sentences[0])
 
-# https://www.facebook.com/LADbible/videos/375311296563614/
-
 from keras.preprocessing import sequence
 
 padded_article_sentences = []
@@ -93,7 +91,9 @@ for i in range(article_sentences.__len__()):
 # print(padded_article_sentences)
 
 sentences_article_ids = []
+y_train_category = []
 for i in range(padded_article_sentences.__len__()):
+    y_train_category.append(remapped_article_ids[i])
     for j in range(padded_article_sentences[i].__len__()):
         sentences_article_ids.append(remapped_article_ids[i])
 # print(sentences_article_ids)
@@ -104,11 +104,15 @@ flatten_article_sentences = np.vstack(padded_article_sentences)
 from keras.utils import to_categorical
 
 x = flatten_article_sentences.copy()
-y = to_categorical(sentences_article_ids, num_classes=sample2id.__len__())
+y = sentences_article_ids.copy()
+input_output_label = list(zip(x, y))
+np.random.shuffle(input_output_label)
+x, y = list(zip(*input_output_label))
+x = np.asarray(list(x))
+y = np.asarray(list(y))
 
 x_train = x[:int(.8 * x.__len__())]
 y_train = y[:int(.8 * y.__len__())]
-
 x_test = x[int(.8 * x.__len__()):]
 y_test = y[int(.8 * y.__len__()):]
 
@@ -125,8 +129,28 @@ model = Sequential()
 model.add(Embedding(word2id.__len__(), embedding_size, input_length=words_per_sentence))
 model.add(Masking(mask_value=0, input_shape=(words_per_sentence, 1)))
 model.add(Bidirectional(LSTM(lstm_output_size)))
-model.add(Dense(64, activation='tanh'))
-model.add(Dense(x_train.__len__(), activation='softmax'))
+model.add(Dense(64, activation='relu'))
+model.add(Dense(sample2id.__len__(), activation='softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['accuracy'])
 model.summary()
+
+model.fit(x_train, to_categorical(y_train, num_classes=sample2id.__len__()), batch_size=32, epochs=8)
+
+# model.save('../sentence-vectorization-model.h5')
+
+scores = model.evaluate(x_test, to_categorical(y_test, num_classes=sample2id.__len__()))
+print(scores)
+print(f"{model.metrics_names[1]}: {scores[1] * 100}%")
+
+dense1_layer = Model(inputs=model.input, outputs=model.get_layer(index=3).output)
+dense1_layer_output = dense1_layer.predict(np.asarray(x_test))
+print('sentence vectorization output vvv ( dimension:', dense1_layer_output[0].__len__(), ')')
+print(dense1_layer.predict(np.asarray(x_test)))
+softmax_layer = Model(inputs=model.input, outputs=model.get_layer(index=4).output)
+softmax_layer_output = softmax_layer.predict(np.asarray(x_test))
+print('softmax classification probabilities output vvv ( classes:', softmax_layer_output[0].__len__(), ')')
+print(softmax_layer.predict(np.asarray(x_test)))
+
+prediction = model.predict(x_test)
+# print(prediction)
