@@ -6,19 +6,25 @@ import re
 
 np.random.seed(0)
 
+def k_words_separate(k, id_representation, overlap=False):
+    k = 20
+    article_sentences = id_representation.copy()
+    for i in range(article_sentences.__len__()):
+        article_sentences[i] = [article_sentences[i][j*k : (j+1)*k] 
+        for j in range((article_sentences[i].__len__() + k - 1) // k)]
+    
+    return article_sentences
+
 path = 'C:/Users/Patdanai/Desktop/wiki-dictionary-[1-50000]/'
 dataset = os.listdir(path)
-# print(dataset.__len__())
 
-n = 100
+n = 512
 sample_ids = []
 for i in range(n):
     randomed_doc_id = int(dataset[np.random.randint(dataset.__len__())].split('.')[0])
     while(randomed_doc_id in sample_ids):
         randomed_doc_id = int(dataset[np.random.randint(dataset.__len__())].split('.')[0])
     sample_ids.append(randomed_doc_id)
-
-# print(sample_ids, sample_ids.__len__())
 
 count = 1
 samples = []
@@ -29,16 +35,10 @@ for article_id in sample_ids:
     samples.append(data)
     count += 1
 
-# print(samples[0])
-# print(sample_ids[0])
-
 for i in range(samples.__len__()):
     samples[i] = prep.remove_xml(samples[i])
-# print(samples[-1])
 vocabularies = [w for doc in samples for w in doc]
-# print(vocabularies[-1])
 vocabularies = prep.remove_stop_words(vocabularies)
-# print(vocabularies[-1])
 
 for i in range(samples.__len__()):
     samples[i] = prep.remove_xml(samples[i])
@@ -55,31 +55,21 @@ for (i, w) in enumerate(set(vocabularies), 2):
         word2id[w] = 1
 
 id2word = {idx: w for w, idx in word2id.items()}
-
-# print(id2word)
-
 sample2id = {article_id: i for i, article_id in enumerate(list(sample_ids))}
-# print(sample2id)
 
 ## words to word ids representation
 id_representation = []
 for i in range(samples.__len__()):
     id_representation.append([word2id[w] for w in samples[i]])
 
-# print(id_representation)
-
 remapped_article_ids = []
 for i in range(sample_ids.__len__()):
     remapped_article_ids.append(sample2id[sample_ids[i]])
 
-# print(remapped_article_ids)
-
-words_per_sentence = 20
-article_sentences = id_representation.copy()
-for i in range(article_sentences.__len__()):
-    article_sentences[i] = [article_sentences[i][j*words_per_sentence : (j+1)*words_per_sentence] for j in range((article_sentences[i].__len__() + words_per_sentence-1) // words_per_sentence)]
-
-# print('*', article_sentences[0])
+words_per_sentence = 30
+overlapping_words = words_per_sentence // 2
+overlap_flag = False
+article_sentences = k_words_separate(words_per_sentence, id_representation, overlap=overlap_flag)
 
 from keras.preprocessing import sequence
 
@@ -88,18 +78,14 @@ for i in range(article_sentences.__len__()):
     padded_s = sequence.pad_sequences(article_sentences[i], maxlen=words_per_sentence)
     padded_article_sentences.append(padded_s)
 
-# print(padded_article_sentences)
-
 sentences_article_ids = []
 y_train_category = []
 for i in range(padded_article_sentences.__len__()):
     y_train_category.append(remapped_article_ids[i])
     for j in range(padded_article_sentences[i].__len__()):
         sentences_article_ids.append(remapped_article_ids[i])
-# print(sentences_article_ids)
 
-flatten_article_sentences = np.vstack(padded_article_sentences)
-# print(list(zip(flatten_article_sentences, sentences_article_ids)))
+flatten_article_sentences = np.vstack(padded_article_sentences) # label each sentence with its article id
 
 from keras.utils import to_categorical
 
@@ -127,7 +113,7 @@ lstm_output_size = 128
 
 model = Sequential()
 model.add(Embedding(word2id.__len__(), embedding_size, input_length=words_per_sentence))
-model.add(Masking(mask_value=0, input_shape=(words_per_sentence, 1)))
+model.add(Masking(mask_value=0, input_shape=(words_per_sentence, 1))) # word id is only a feature
 model.add(Bidirectional(LSTM(lstm_output_size)))
 model.add(Dense(64, activation='relu'))
 model.add(Dense(sample2id.__len__(), activation='softmax'))
@@ -137,7 +123,10 @@ model.summary()
 
 model.fit(x_train, to_categorical(y_train, num_classes=sample2id.__len__()), batch_size=32, epochs=8)
 
-# model.save('../sentence-vectorization-model.h5')
+if(overlap_flag):
+    model.save('./' + str(words_per_sentence) + 'w-' + str(overlapping_words) + '-overlap' + '-sentence-vectorization-model-' + str(n) + '.h5')
+else:
+    model.save('./' + str(words_per_sentence) + 'w-sentence-vectorization-model-' + str(n) + '.h5')
 
 scores = model.evaluate(x_test, to_categorical(y_test, num_classes=sample2id.__len__()))
 print(scores)
@@ -151,6 +140,3 @@ softmax_layer = Model(inputs=model.input, outputs=model.get_layer(index=4).outpu
 softmax_layer_output = softmax_layer.predict(np.asarray(x_test))
 print('softmax classification probabilities output vvv ( classes:', softmax_layer_output[0].__len__(), ')')
 print(softmax_layer.predict(np.asarray(x_test)))
-
-prediction = model.predict(x_test)
-# print(prediction)

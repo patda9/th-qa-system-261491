@@ -1,13 +1,15 @@
 import json
 import numpy as np
 import preprocessing as prep
+import sentence_vectorization as sv
 import os
+
 np.random.seed(0)
 
 path = 'C:\\Users\\Patdanai\\Desktop\\wiki-dictionary-[1-50000]\\'
 text_path = 'C:\\Users\\Patdanai\\Desktop\\documents-nsc\\'
 dataset = os.listdir(path)
-n_samples = 500
+n_samples = 512
 
 with open('./../new_sample_questions_tokenize.json', 'r', encoding='utf-8', errors='ignore') as f:
     questions = json.load(f)
@@ -77,10 +79,6 @@ for i in range(questions.__len__()):
 # get article ids from directory path
 
 
-
-
-
-
 ## get words/vocabularies from file
 articles = []
 i = 1
@@ -132,99 +130,12 @@ for article in articles:
 
 print([id2w[idx] for idx in id_representation[499]])
 
+words_per_sentence = 20
+overlap = False
+
+sv.k_words_separate(words_per_sentence, id_representation, overlap=overlap)
+
 from keras.layers import Activation, Bidirectional, Dense, Flatten, Embedding, InputLayer, LSTM, Masking, TimeDistributed
 from keras.models import load_model, Model, Sequential
 from keras.optimizers import Adam
 
-model = Sequential()
-# model.add(Masking(mask_value=0., ()))
-model.add(Embedding(len(w2id), 64, input_length=n))
-model.add(Bidirectional(LSTM(128)))
-# # model.add(Flatten()) # for return_sequence=True
-# model.add(Dense(32, activation='relu'))
-# model.add(Dense(len(doc2id), activation='softmax'))
-
-# # model = load_model('./src/sentence-vector-model.h5')
-# model.compile(loss='categorical_crossentropy', optimizer=Adam(.0001), metrics=['accuracy'])
-# model.summary()
-
-# # model.fit(s_train, to_categorical(doc_id_train, len(doc2id)), batch_size=32, epochs=8)
-# # model.save('./sentence-vector-model.h5')
-# intermediate_layer_model = Model(inputs=model.input,
-#                                  outputs=model.get_layer(index=2).output)
-# # json_architecture = model.to_json()
-
-# scores = model.evaluate(s_test, to_categorical(doc_id_test, num_classes=len(doc2id)))
-# print(f"{model.metrics_names[1]}: {scores[1] * 100}")
-
-# predict_sample = np.asarray([s_test])
-# dense1_output = intermediate_layer_model.predict(np.asarray(s_test))
-
-# def generate_question(words, n=20, padding=False):
-#     question_in_id = []
-#     for w in words:
-#         try:
-#             question_in_id.append(w2id[w])
-#         except KeyError:
-#             question_in_id.append(w2id['--niv--'])
-#     if(padding == True):
-#         while(len(question_in_id) < 20):
-#             question_in_id.insert(0, w2id['--pad--'])
-#     return question_in_id
-
-# question_sentence = generate_question(['ใน', 'แต่ละ', 'ทีม', 'จะ', 'ต้อง', 'ประกอบ', 'อะไร', 'เพื่อ', 'นำ', 'ไป', 'ติด', 'ที่', 'แท่น'], padding=True)
-# question_vector = intermediate_layer_model.predict(np.asarray([question_sentence]))
-
-
-# print(question_sentence)
-
-# answer_sentence = s_test[126]
-# answer_vector = intermediate_layer_model.predict(np.asarray([answer_sentence]))
-
-# print(dense1_output.shape)
-
-# shortest_sentences = []
-# shortest_idx = []
-
-# for i in range(len(s_test)):
-#     dist = np.linalg.norm(question_vector[0] - dense1_output[i])
-
-#     if(len(shortest_sentences) < 50):
-#         shortest_sentences.append(dist)
-#         shortest_idx.append(i)
-
-#     else:
-#         if(np.amax(shortest_sentences) > dist):
-#             idx = np.argmax(shortest_sentences)
-#             shortest_sentences[idx] = dist
-#             shortest_idx[idx] = i
-
-# for i in range(len(shortest_sentences)):
-#     s = s_test[shortest_idx[i]]
-#     print(s)
-#     w_list = []
-#     for w in s:
-#         w_list.append(id2w[w])
-#     print(w_list, doc_id_test[shortest_idx[i]])
-
-
-# dist = np.linalg.norm(question_vector[0] - answer_vector[0])
-# print(shortest_sentences)
-# print(shortest_idx)
-# print(dist)
-
-# # print(question_sentence)
-# # print(question_vector)
-# # similar_sentence = np.array([w2id['โดย'], w2id[' '], w2id['5'], w2id[' '], w2id['ตาม'], w2id['ลำดับ'], w2id[' '], w2id['แต่'], w2id['ทั้ง'], w2id['สอง'], w2id['ทีม'], w2id['ใช้'], w2id['เส้นทาง'], w2id['พิเศษ'], w2id['ที่'], w2id['ผิด'], w2id['กฎจราจร'], w2id[' '], w2id['โดย'], w2id['ขับ'], ])
-# # dense_output2 = intermediate_layer_model.predict(np.asarray([s_test[1111]]))
-# # similar_output = intermediate_layer_model.predict(np.asarray([similar_sentence]))
-# # print(similar_sentence)
-# # file = open('diff_vec.txt', 'w')
-# # file.writelines(str(dense_output.tolist()))
-# # file.writelines(str(similar_output.tolist()))
-# # file.writelines(str(dense_output2.tolist()))
-# # file.close()
-# # file = open('sentences.txt', 'w', 'utf-8')
-# # file.close()
-
-# prediction = model.predict(np.asarray(s_test))
