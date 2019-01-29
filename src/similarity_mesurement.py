@@ -33,10 +33,12 @@ if(__name__ == '__main__'):
     count = 0
     selected_article_ids = []
     selected_questions_ids = []
+    selected_questions_plain_text = []
     for q in answer_details['data']:
         if(q['article_id'] < last_doc_id and count < 512):
             selected_article_ids.append(q['article_id'])
             selected_questions_ids.append(q['question_id'])
+            selected_questions_plain_text.append(q['question'])
             count += 1
     
     # print(list(zip(selected_questions_ids, selected_article_ids)))
@@ -93,6 +95,8 @@ if(__name__ == '__main__'):
     # print(word2id)
 
     selected_question_id_representation = []
+    for i in range(selected_questions.__len__()):
+        selected_questions[i] = prep.remove_stop_words(selected_questions[i])
     for q in selected_questions:
         temp = []
         for w in q:
@@ -100,8 +104,10 @@ if(__name__ == '__main__'):
                 temp.append(word2id[w])
             except KeyError:
                 temp.append(word2id['<NIV>'])
+                print(w)
         selected_question_id_representation.append(temp)
 
+    # exit()
     # print(selected_question_id_representation)
     # print(selected_articles[-1])
 
@@ -197,7 +203,7 @@ if(__name__ == '__main__'):
 
     for i in range(padded_selected_question_id_representation.__len__()):
         selected_question_id_representation[i] = [id2word[idx] for idx in selected_question_id_representation[i]]
-        # print(selected_question_id_representation[i])
+        print(selected_question_id_representation[i])
 
     # preprocess ของวินเนอร์ไม่เปลี่ยนตำแหน่งตัวอักษร
     # หาคำที่เป็นคำตอบก่อนจะได้ ['รา'] -> [468:469], ['บัต '] -> [470:473] แล้วค่อย remove stop words
@@ -238,26 +244,47 @@ if(__name__ == '__main__'):
     # print(dense1_layer_question_outputs.__len__())
     # print(dense1_layer_answer_outputs[0].__len__())
 
-    print(min_distance_indexes)
+    # print(min_distance_indexes)
     # print(distance_matrix)
     # print(np.asarray(answers_after_removed_stop_words) // words_per_sentence)
 
     answer_matrix = np.asarray(answers_after_removed_stop_words) // words_per_sentence
     
-    print(answer_matrix)
+    # print(answer_matrix)
 
     ranks = []
     proportion_ranks = []
     for i in range(min_distance_indexes.__len__()):
-        print(min_distance_indexes[i][answer_matrix[i]])
-        # for j in range(min_distance_indexes[i].__len__()):
-        ranks.append(min_distance_indexes[i][answer_matrix[i]] + 1)
-        proportion_ranks.append(float((min_distance_indexes[i][answer_matrix[i]] + 1) / min_distance_indexes[i].__len__()))
+        # if(answer_matrix[i] != 0):
+        print(min_distance_indexes[i][answer_matrix[i]], min_distance_indexes[i].__len__())
+        ranks.append(min_distance_indexes[i][answer_matrix[i]])
+        proportion_ranks.append((min_distance_indexes[i][answer_matrix[i]]) / min_distance_indexes[i].__len__())
+        # else:
 
-    # print(np.asarray(ranks))
+    print(proportion_ranks)
+
+    print(np.asarray(ranks))
     # print(np.asarray(proportion_ranks))
     
-    fig, axs = plt.subplots(1, 2)
-    axs[0].hist(ranks, bins='auto')
-    axs[1].hist(proportion_ranks, bins='auto')
-    plt.savefig('./tmp2.png')
+    fig1, axs1 = plt.subplots(1)
+    axs1.hist(ranks, bins='auto')
+    title = str(words_per_sentence) + '-Words Sentence Model (from: ' + str(n_samples) + ' Samples)'
+    fig1.suptitle('N-ranks similarity between question and sentences in article', fontsize=12, fontweight='bold')
+    axs1.set_title(title)
+    axs1.set_xlabel('Closest to sentence rank (n-th)')
+    axs1.set_ylabel('Occurrence')
+    plt.savefig('./tmp1-' + str(words_per_sentence) + '.png')
+
+    fig2, axs2 = plt.subplots(1)
+    axs2.hist(proportion_ranks, bins='auto')
+    axs2.set_title(title)
+    fig2.suptitle('N-ranks similarity between question and sentences in article', fontsize=12, fontweight='bold')
+    axs2.set_xlabel('Closest to sentence rank (n-th) / Article length (sentences)')
+    axs2.set_ylabel('Occurrence')
+    plt.savefig('./tmp2-' + str(words_per_sentence) + '.png')
+    
+    for i in range(512):
+        for j in range(preprocessed_article_id_representation[i].__len__()):
+            if(j == answer_matrix[i]):
+                print(str(i) + ':', selected_questions_plain_text[i], proportion_ranks[i])
+                print([id2word[idx] for idx in preprocessed_article_id_representation[i][j]], '\n')
