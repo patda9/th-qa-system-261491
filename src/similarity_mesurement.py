@@ -150,7 +150,7 @@ if(__name__ == '__main__'):
     padded_content_id_representation = preprocessed_article_id_representation.copy()
     
     # print(padded_selected_question_id_representation[-1])
-    print(preprocessed_article_id_representation)
+    # print(preprocessed_article_id_representation)
 
     from keras.layers import Activation, Bidirectional, Dense, Embedding, Flatten, InputLayer, LSTM, TimeDistributed
     from keras.layers.core import Masking
@@ -177,18 +177,28 @@ if(__name__ == '__main__'):
         for q in answer_details['data']:
             if(selected_questions_ids[i] == q['question_id']):
                 answer_begin_pos = q['answer_begin_position '] - 1 # pos - 1 to refer array index
-                answer_end_pos = q['answer_end_position']
-                answer_char_locs.append(range(answer_begin_pos, answer_end_pos))
+                answer_end_pos = q['answer_end_position'] - 1
+                answer_char_locs.append((answer_begin_pos, answer_end_pos))
 
     answers = []
     for i in range(n_samples):
-        answer = selected_articles[i][answer_char_locs[i][0]:answer_char_locs[i][-1]]
+        answer = selected_articles[i][answer_char_locs[i][0]:answer_char_locs[i][1]]
         answers.append(answer)
 
-    # # find ans index
-    # answer_indexes = []
-    # for i in range(selected_tokenized_articles.__len__()):
-    #     current_char_loc = 0
+    # print(answers)
+    print(remaining_words[0], cumulative_word_lengths[0])
+    # find ans index
+    answer_indexes = []
+    for i in range(remaining_words.__len__()):
+        temp_indexes = []
+        for j in range(cumulative_word_lengths[i].__len__()):
+            eca = cumulative_word_lengths[i][j] # ending character of the answer
+            if(eca in range(answer_char_locs[i][0]+1, answer_char_locs[i][1]+1)):
+                temp_indexes.append(j)
+        for j in range(remaining_words[i].__len__()):
+            if(remaining_words[i][j][0] in temp_indexes):
+                print(remaining_words[i][j])
+                
     #     for j in range(selected_tokenized_articles[i].__len__()):
     #         for c in selected_tokenized_articles[i][j]:
     #             if(current_char_loc == answer_char_locs[i][0]):
