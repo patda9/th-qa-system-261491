@@ -56,18 +56,3 @@ if(__name__ == '__main__'):
         answer_begin_pos = q['answer_begin_position '] - 1 # array index => (pos - 1)
         answer_end_pos = q['answer_end_position'] - 1 # array index => (pos - 1)
         answer_char_locs.append((answer_begin_pos, answer_end_pos))
-
-    # # prototype: convert to original character location
-    # ## i loop gets index
-    # for i in range(test_sample[1].__len__()):
-    #     b = answer_char_locs[0][0]
-    #     e = answer_char_locs[0][1] ## ending position of word
-    #     if(test_sample[1][i] == e):
-    #         word_number = i
-    #         print('preprocessed word number:', word_number)
-    #         print('begin character location:', b, '| ending character location:', e)
-    #         print('origin begin character location:', b + 1, '| original ending character location:', e + 1)
-    #         ## j loop gets answer
-    #         for j in range(test_sample[0].__len__()):
-    #             if(word_number == test_sample[0][j][0]):
-    #                 print('word:', test_sample[0][j][1])

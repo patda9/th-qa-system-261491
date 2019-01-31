@@ -6,18 +6,29 @@ import re
 
 np.random.seed(0)
 
-def k_words_separate(k, id_representation, overlap=False, overlapping_words=0):
-    article_sentences = id_representation.copy()
-    for i in range(article_sentences.__len__()):
-        if(overlap and k > overlapping_words):
-            article_sentences[i] = [article_sentences[i][j:j+k] for j in range(0, article_sentences[i].__len__(), k-overlapping_words)]
-            for m in range(article_sentences[i].__len__()):
-                if(article_sentences[i][m].__len__() < k):
-                    article_sentences[i] = article_sentences[i][:m+1]
-                    break
-        else:
-            article_sentences[i] = [article_sentences[i][j*k:(j+1)*k] for j in range((article_sentences[i].__len__() + k - 1) // k)]
-    return article_sentences
+def k_words_separate(n, id_representation, overlap=False, overlapping_words=3):
+    articles = id_representation.copy()
+    article_sentences = []
+    article_sentences_words_index = []
+    for i in range(articles.__len__()):
+        sentences = []
+        sentences_word_index = []
+        temp = 0
+        for j in range(0, articles[i].__len__(), n-overlapping_words):
+            sentence = articles[i][j:j+n]
+            if(sentence.__len__() < overlapping_words):
+                break
+            if(j > 0):
+                idx = (temp - 3, temp + n - 3)
+                temp += n - 3
+            else:
+                idx = (temp, temp + n)
+                temp += n
+            sentences.append(sentence)
+            sentences_word_index.append(idx)
+        article_sentences.append(sentences)
+        article_sentences_words_index.append(sentences_word_index)
+    return article_sentences, article_sentences_words_index
 
 if(__name__ == '__main__'):
     path = 'C:/Users/Patdanai/Desktop/wiki-dictionary-[1-50000]/'
@@ -43,11 +54,11 @@ if(__name__ == '__main__'):
     for i in range(samples.__len__()):
         samples[i] = prep.remove_xml(samples[i])
     vocabularies = [w for doc in samples for w in doc]
-    vocabularies = prep.remove_stop_words(vocabularies)
+    vocabularies = prep.remove_noise(vocabularies)
 
     for i in range(samples.__len__()):
         samples[i] = prep.remove_xml(samples[i])
-        samples[i] = prep.remove_stop_words(samples[i])
+        samples[i] = prep.remove_noise(samples[i])
 
     ## word to id transformation
     word2id = {}

@@ -89,7 +89,7 @@ if(__name__ == '__main__'):
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             data = json.load(f)
             data = prep.remove_xml(data)
-            data = prep.remove_stop_words(data)
+            data = prep.remove_noise(data)
         articles.append(data)
         i += 1
 
