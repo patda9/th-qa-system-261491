@@ -7,6 +7,9 @@ import re
 import sentence_vectorization as sv
 import os
 
+from matplotlib import colors
+from matplotlib.ticker import PercentFormatter
+
 np.random.seed(0)
 
 if(__name__ == '__main__'):
@@ -43,7 +46,7 @@ if(__name__ == '__main__'):
             selected_questions_plain_text.append(q['question'])
             count += 1
     
-    print(list(zip(selected_questions_ids, selected_article_ids)))
+    # print(list(zip(selected_questions_ids, selected_article_ids)))
 
     # load each article content
     selected_articles = [] # plain text
@@ -79,12 +82,16 @@ if(__name__ == '__main__'):
 
     remaining_words = []
     cumulative_word_lengths = []
+    preprocessed_cumulative_word_lengths = []
     for i in range(preprocessed_articles.__len__()):
         remaining_words.append(preprocessed_articles[i][0])
         cumulative_word_lengths.append(preprocessed_articles[i][1])
+        preprocessed_cumulative_word_lengths.append(preprocessed_articles[i][2])
+    # print(cumulative_word_lengths[0])
+    print(preprocessed_cumulative_word_lengths[0])
 
-    print(remaining_words[0])
-    print(cumulative_word_lengths[1])
+    # print(remaining_words[0])
+    # print(cumulative_word_lengths[1])
 
     vocabularies = [article[i][1] for article in remaining_words for i in range(article.__len__())]
     
@@ -144,6 +151,9 @@ if(__name__ == '__main__'):
     preprocessed_article_id_representation = temp_preprocessed_article[0].copy()
     preprocessed_articles_sentences_index = temp_preprocessed_article[1].copy()
 
+    print(preprocessed_articles_sentences_index)
+    # exit()
+
     from keras.preprocessing import sequence
     
     padded_selected_question_id_representation = sequence.pad_sequences(selected_question_id_representation, maxlen=words_per_sentence)
@@ -188,7 +198,7 @@ if(__name__ == '__main__'):
         answer = selected_articles[i][answer_char_locs[i][0]:answer_char_locs[i][1]]
         answers.append(answer)
 
-    print(remaining_words[0], cumulative_word_lengths[0])
+    # print(remaining_words[0], cumulative_word_lengths[0])
 
     # find ans index
     answer_indexes = []
@@ -209,9 +219,10 @@ if(__name__ == '__main__'):
         try:
             answer_indexes.append((temp_answer_index, (temp_prep_ans_idx_range[0], temp_prep_ans_idx_range[-1] + 1), (begin, end)))
         except IndexError:
-            answer_indexes.append(([(-1, -1)], (-1, -1), (begin, end)))
+            answer_indexes.append(([(-18, -18)], (-18, -18), (begin, end)))
     
-    # print(answer_indexes) # [indexes of answer, (start, ending characters)]
+    print(answer_indexes) # [indexes of answer, (start, ending characters)]
+    # exit()
     
     # print(preprocessed_article_id_representation[-1])
 
@@ -251,14 +262,13 @@ if(__name__ == '__main__'):
             temp.append(distance)
         distance_matrix.append(temp)
     
-    print(distance_matrix)
+    # print(distance_matrix)
 
     min_distance_indexes = []
     for i in range(distance_matrix.__len__()):
         min_index = np.asarray(distance_matrix[i]).argsort()[:distance_matrix[i].__len__()]
         min_distance_indexes.append(min_index)
     min_distance_indexes = np.asarray(min_distance_indexes)
-    print(min_distance_indexes)
 
     min_distances = []
     for i in range(min_distance_indexes.__len__()):
@@ -267,57 +277,80 @@ if(__name__ == '__main__'):
             temp_distance.append(distance_matrix[i][idx])
         min_distances.append(np.asarray(temp_distance))
     min_distances = np.array(min_distances)
-    print(min_distances)
 
-    # # print(dense1_layer_question_outputs.__len__())
-    # # print(dense1_layer_answer_outputs[0].__len__())
-
-    # # print(min_distance_indexes)
-    # # print(distance_matrix)
-    # # print(np.asarray(answers_after_removed_stop_words) // words_per_sentence)
-
-    # answer_matrix = np.asarray(answers_after_removed_stop_words) // words_per_sentence
-    
-    # # print(answer_matrix)
-
-    # print(np.asarray(answer_indexes))
-    # print(min_distance_indexes)
     answer_masks = []
     answer_sentences = []
+    answer_sentence_ranks = []
     for i in range(min_distance_indexes.__len__()):
         answer_mask = []
         answer_sentence = []
+        answer_sentence_rank = []
         for j in range(min_distance_indexes[i].__len__()):
             jth_closest_sentence = min_distance_indexes[i][j]
-            candidate_idx_range = padded_content_id_representation[i][jth_closest_sentence]
-            print(candidate_idx_range, '*')
-            candidate_idx_range = list(range(candidate_idx_range[0], candidate_idx_range[-1]))
+            temp_candidate_idx_range = preprocessed_articles_sentences_index[i][jth_closest_sentence]
+            candidate_idx_range = list(range(temp_candidate_idx_range[0], temp_candidate_idx_range[-1]))
             print(candidate_idx_range)
             ans_idx_range = list(range(answer_indexes[i][1][0], answer_indexes[i][1][1]))
-            print(ans_idx_range)
-            exit()
             has_answer = 0
             for k in range(ans_idx_range.__len__()):
+                # print('answer indexes:', ans_idx_range, 'sentence indexes', candidate_idx_range)
                 if(ans_idx_range[k] in candidate_idx_range):
                     has_answer = 1
                 else:
                     has_answer = 0
                     break
+                # print(str(k) + '-th answer word', 'is in sentence:', has_answer)
             if(has_answer):
-                answer_sentence.append(padded_content_id_representation[i][j])
-                print([id2word[idx] for idx in padded_content_id_representation[i][j]])
+                # print('rank:', jth_closest_sentence)
+                answer_sentence.append((preprocessed_article_id_representation[i][jth_closest_sentence], candidate_idx_range))
+            # print(answer_sentence)
             answer_mask.append(has_answer)
+            answer_sentence_rank.append(jth_closest_sentence)
         answer_sentences.append(answer_sentence)
+        answer_sentence_ranks.append(answer_sentence_rank)
         answer_masks.append(answer_mask)
+    
+    # for i in range(answer_sentences.__len__()):
+    #     for j in range(answer_sentences[i].__len__()):
+    #         print('question:', selected_questions[i])
+    #         print('true answer: ', [id2word[idx] for idx in answer_sentences[i][j][0]])
+    #         print('rank:', answer_sentence_ranks[i][j])
+
+    # print(preprocessed_cumulative_word_lengths[0][0])
+
+    # answer_sentence_charater_locations = []
+    # for i in range(answer_sentences.__len__()):
+        # print(answer_sentences[i])
+    
+    answer_sentence_character_locations = []
+    for i in range(answer_sentences.__len__()):
+        temp = []
+        for j in range(answer_sentences[i].__len__()):
+            # print(j, answer_sentences[i][j][1][0], answer_sentences[i][0][1][-1])
+            temp.append((answer_sentences[i][j][1][0], answer_sentences[i][0][1][-1]))
+        answer_sentence_character_locations.append(temp)
+        # print()
+    print(answer_sentence_character_locations.__len__())
     exit()
+
+    # answer_sentence_char_locs = []
+    # for i in range(answer_sentences.__len__()):
+    #     temp_char_loc = []
+    #     for j in range(answer_sentences[i].__len__()):
+    #         start_of_sentence_idx = answer_sentences[i][j][1][0]
+    #         print([id2word[idx] for idx in answer_sentences[i][j][0]], preprocessed_articles_sentences_index[i][start_of_sentence_idx])
+    #         print(preprocessed_cumulative_word_lengths[i].__len__())
+    #         end_of_sentence_idx = answer_sentences[i][j][1][-1]
+    #         print(end_of_sentence_idx)
+    #         temp_char_loc.append((preprocessed_cumulative_word_lengths[i][start_of_sentence_idx], preprocessed_cumulative_word_lengths[i][end_of_sentence_idx]))
+    #     answer_sentence_char_locs.append(temp_char_loc)
+    # print(answer_sentence_char_locs)
     
     temp_answer_sentences = answer_sentences.copy()
     for i in range(answer_sentences.__len__()):
         for j in range(answer_sentences[i].__len__()):
             temp_answer_sentences[i][j] = [id2word[idx] for idx in answer_sentences[i][j]]
             print(temp_answer_sentences[i][j])
-        print()
-    exit()
 
     ranks = []
     for i in range(answer_masks.__len__()):
@@ -326,19 +359,31 @@ if(__name__ == '__main__'):
             if(answer_masks[i][j]):
                 temp_ranks.append(j)
         if(not(temp_ranks)):
-            temp_ranks.append(-1)
+            temp_ranks.append(-18)
         ranks.append(temp_ranks)
     
-    flattened_ranks = [rank for q in ranks for rank in q]
+    flattened_ranks = [rank for ans in ranks for rank in ans]
+    # print(flattened_ranks)
     ranks_ocurrences = dict(collections.Counter(flattened_ranks))
+    print(ranks_ocurrences)
 
-    for i in range(selected_questions.__len__()):
-        print(selected_questions[i])
-        print(answer_indexes[i][0])
-        for j in range(answer_sentences[i].__len__()):
-            answer_sentences[i][j] = [id2word[idx] for idx in answer_sentences[i][j]]
-            print(answer_sentences[i][j])
-            print('***')
+    proportion_ranks = []
+    for i in range(ranks.__len__()):
+        proportion_rank = []
+        for j in range(ranks[i].__len__()):
+            print(ranks[i][j])
+            proportion_rank.append(ranks[i][j] / padded_content_id_representation[i].__len__())
+        proportion_ranks.append(proportion_rank)
+    print(proportion_ranks)
+    flattened_proportion_ranks = [rank for ans in proportion_ranks for rank in ans]
+
+    # for i in range(selected_questions.__len__()):
+        # print(selected_questions[i])
+        # print(answer_indexes[i][0])
+        # for j in range(answer_sentences[i].__len__()):
+            # answer_sentences[i][j] = [id2word[idx] for idx in answer_sentences[i][j]]
+            # print(answer_sentences[i][j])
+            # print('***')
 
             # print(list(range(candidate_idx_range[0], candidate_idx_range[-1])))
             # if()
@@ -359,19 +404,31 @@ if(__name__ == '__main__'):
     # print(np.asarray(ranks))
     # # print(np.asarray(proportion_ranks))
     
-    fig1, axs1 = plt.subplots(1)
-    axs1.hist(ranks, bins='auto')
+    fig1, axs1 = plt.subplots(1, tight_layout=True)
+    n, bins, patches = axs1.hist(flattened_ranks, bins='auto')
+    fracs = n / n.max()
+    norm = colors.Normalize(fracs.min(), fracs.max())
+    for thisfrac, thispatch in zip(fracs, patches):
+        color = plt.cm.viridis(norm(thisfrac))
+        thispatch.set_facecolor(color)
     title = str(words_per_sentence) + '-Words Sentence Model (from: ' + str(n_samples) + ' Samples)'
     fig1.suptitle('N-ranks similarity between question and sentences in article', fontsize=12, fontweight='bold')
     axs1.set_title(title)
     axs1.set_xlabel('Closest to sentence rank (n-th)')
     axs1.set_ylabel('Occurrence')
     plt.savefig('./tmp1-' + str(words_per_sentence) + '.png')
+    plt.show()
 
-    # fig2, axs2 = plt.subplots(1)
-    # axs2.hist(proportion_ranks, bins='auto')
-    # axs2.set_title(title)
-    # fig2.suptitle('N-ranks similarity between question and sentences in article', fontsize=12, fontweight='bold')
-    # axs2.set_xlabel('Closest to sentence rank (n-th) / Article length (sentences)')
-    # axs2.set_ylabel('Occurrence')
-    # plt.savefig('./tmp2-' + str(words_per_sentence) + '.png')
+    fig2, axs2 = plt.subplots(1)
+    n, bins, patches = axs2.hist(flattened_proportion_ranks, bins='auto')
+    fracs = n / n.max()
+    norm = colors.Normalize(fracs.min(), fracs.max())
+    for thisfrac, thispatch in zip(fracs, patches):
+        color = plt.cm.viridis(norm(thisfrac))
+        thispatch.set_facecolor(color)
+    axs2.set_title(title)
+    fig2.suptitle('N-ranks similarity between question and sentences in article', fontsize=12, fontweight='bold')
+    axs2.set_xlabel('Closest to sentence rank (n-th) / Article length (sentences)')
+    axs2.set_ylabel('Occurrence')
+    plt.savefig('./tmp2-' + str(words_per_sentence) + '.png')
+    plt.show()

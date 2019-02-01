@@ -31,14 +31,27 @@ def remove_noise(article, pattern=re.compile(r"[^\u0E00-\u0E7F^0-9^ \t^.^,]")):
                 temp += article[i][j]
         if(temp.__len__() and not(temp in re.findall(r"^\s|^,|^.", temp))):
             list_with_char_removed.append((i, temp))
+    
     word_locations = word_lengths.copy()
     summation = 0
     for i in range(word_locations.__len__()):
         summation += word_locations[i]
         word_locations[i] = summation
+
     # print(word_lengths[151])
     # print(word_locations[150] + 1, word_locations[151] + 1)
-    return list_with_char_removed, word_locations
+
+    temp = word_locations.copy()
+    preprocessed_word_lengths = []
+    temp_indexes = []
+    for i in range(list_with_char_removed.__len__()):
+        temp_indexes.append(list_with_char_removed[i][0])
+    
+    for i in range(temp.__len__()):
+        if(i in temp_indexes):
+            preprocessed_word_lengths.append(temp[i])
+            
+    return list_with_char_removed, word_locations, preprocessed_word_lengths
 
 # main function for script testing
 if(__name__ == '__main__'):
