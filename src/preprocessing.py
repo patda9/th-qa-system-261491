@@ -18,43 +18,90 @@ def remove_xml(article):
             xml_close_index = i + 1
     return article[xml_close_index:]
 
-# remove english, special char, *(and stop words) returns remaining words from preprocessing and origin cumulative string lengths
-def remove_noise(article, pattern=re.compile(r"[^\u0E00-\u0E7F^0-9^ \t^.]")):
-    original_word_locations = []
-    for i in range(article.__len__()):
-        temp = []
-        for j in range(article[i].__len__()):
-            temp.append(article[i][j].__len__())
-        original_word_locations.append(temp)
-
-    list_with_char_removed = []
-    word_lengths = []
-    for i in range(article.__len__()):
-        char_to_remove = re.findall(pattern, article[i])
-        temp = ''
-        word_lengths.append(article[i].__len__())
-        for j in range(article[i].__len__()):
-            if(not(article[i][j] in char_to_remove)):
-                temp += article[i][j]
-        if(temp.__len__() and not(temp in re.findall(r"^\s|^,|^.", temp))):
-            list_with_char_removed.append((i, temp))
+"""
+output: preprocessed (remove noises from each token) arrays of tokens in each article 
+        <arrays of tokens in each article: array like>
+input: arrays of tokens <arrays of tokens: array like>
+"""
+# r"[^\u0E00-\u0E7F^0-9^ \t^.]" this pattern removes '.', ',', spaces, tabs and english characters
+def remove_noise(array_of_tokens, preprocessing_pattern=re.compile(r"[^\u0E00-\u0E7F^0-9^ ^\t]|^[\u0E00-\u0E7F].[\u0E00-\u0E7F].")):
+    thai_number = ['\u0E50', '\u0E51', '\u0E52', '\u0E53', '\u0E54', '\u0E55', '\u0E56', '\u0E57', '\u0E58', '\u0E59']
     
-    word_locations = word_lengths.copy()
-    summation = 0
-    for i in range(word_locations.__len__()):
-        summation += word_locations[i]
-        word_locations[i] = summation
+    original_token_lengths = []
+    for word in array_of_tokens:
+        original_token_lengths.append(word.__len__()) # for each j => temp contains each article's word lengths
 
-    # print(word_lengths[151])
-    # print(word_locations[150] + 1, word_locations[151] + 1)
+    # this below block removes any charater in regex_pattern
+    original_token_indexes = []
+    tokens_with_chars_removed = []
+    for i in range(array_of_tokens.__len__()):
+        chars_to_remove = re.findall(preprocessing_pattern, array_of_tokens[i])
+        temp = '' # declare for characters that pass condition
+        for j in range(array_of_tokens[i].__len__()):
+            if(not(array_of_tokens[i][j] in chars_to_remove)):
+                if(array_of_tokens[i][j] in thai_number):
+                    if(array_of_tokens[i][j] == thai_number[0]):
+                        temp += '0'
+                    if(array_of_tokens[i][j] == thai_number[1]):
+                        temp += '1'
+                    if(array_of_tokens[i][j] == thai_number[2]):
+                        temp += '2'
+                    if(array_of_tokens[i][j] == thai_number[3]):
+                        temp += '3'
+                    if(array_of_tokens[i][j] == thai_number[4]):
+                        temp += '4'
+                    if(array_of_tokens[i][j] == thai_number[5]):
+                        temp += '5'
+                    if(array_of_tokens[i][j] == thai_number[6]):
+                        temp += '6'
+                    if(array_of_tokens[i][j] == thai_number[7]):
+                        temp += '7'
+                    if(array_of_tokens[i][j] == thai_number[8]):
+                        temp += '8'
+                    if(array_of_tokens[i][j] == thai_number[9]):
+                        temp += '9'
+                else:
+                    temp += array_of_tokens[i][j] # concatenate charaters those are not in chars_to_remove
+        # this below condition filters remaining single \n, \t, spaces commas and dots tokens
+        if(temp.__len__() and not(temp in re.findall(r"^\s|^,|^.", temp))):
+            original_token_indexes.append(i)
+            tokens_with_chars_removed.append(temp) # append temp(word <string>) to tokens_with_chars_remove
+    
+    # print(tokens_with_chars_removed) # TESTING FUNCTION
 
-    original_word_locations = word_lengths.copy()
     summation = 0
-    for i in range(original_word_locations.__len__()):
-        summation += original_word_locations[i]
-        original_word_locations[i] = summation
-            
-    return list_with_char_removed, word_locations, original_word_locations
+    for i in range(original_token_lengths.__len__()):
+        summation += original_token_lengths[i]
+        original_token_lengths[i] = summation
+    
+    # print(original_token_lengths)
+    # print(original_token_indexes)
+
+    # this below block gives the remaining word's original position ranges
+    # in format range(0, 10) => 0..9
+    token_ranges = []
+    for i in range(1, original_token_indexes.__len__() - 1):
+        start = original_token_indexes[i-1]
+        end = start + 1
+        # token_ranges.append((original_token_lengths[start-1], original_token_lengths[end]))
+        if(start):
+            # append range of each token
+            token_ranges.append((original_token_lengths[start - 1], original_token_lengths[end]))
+        else:
+            token_ranges.append((original_token_lengths[start], original_token_lengths[end]))
+    
+    # print(token_ranges)
+    # print(selected_plain_text_article[0][528:537]) # answer position form => (start+1, end)
+    
+    """
+    for i in range(token_ranges.__len__()): # TESTING FUNCTION: returns tokens string in 1 line
+        temp += selected_plain_text_article[0][token_ranges[i][0]:token_ranges[i][1] - 1] + ' '
+    print(temp)
+    """
+
+    # preprocessing gives remaining tokens, their old indexes after tokenized
+    # and their position ranges(range canbe converted to length)
+    return [tokens_with_chars_removed, original_token_indexes, original_token_lengths]
 
 # main function for script testing
 if(__name__ == '__main__'):

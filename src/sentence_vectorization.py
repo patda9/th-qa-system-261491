@@ -6,29 +6,35 @@ import re
 
 np.random.seed(0)
 
-def k_words_separate(n, id_representation, overlap=False, overlapping_words=3):
-    articles = id_representation.copy()
-    article_sentences = []
-    article_sentences_words_index = []
-    for i in range(articles.__len__()):
+def m_words_separate(m, arrays_of_tokens, overlapping_words=0):
+    sentences_in_articles = []
+    sentences_ranges_in_articles = []
+    for i in range(arrays_of_tokens.__len__()):
         sentences = []
-        sentences_word_index = []
-        temp = 0
-        for j in range(0, articles[i].__len__(), n-overlapping_words):
-            sentence = articles[i][j:j+n]
-            if(sentence.__len__() <= overlapping_words):
+        sentences_ranges = []
+        temp_j = 0
+        for j in range(0, arrays_of_tokens[i].__len__(), m-overlapping_words):
+            if((j + m) > arrays_of_tokens[i].__len__()):
+                fill_length = (j + m) - arrays_of_tokens[i].__len__()
+                idx = (j-fill_length, arrays_of_tokens[i].__len__())
+                sentence = arrays_of_tokens[i][j-fill_length:j+m]
+                sentences_ranges.append(idx)
                 break
-            if(j > 0):
-                idx = (temp - 3, temp + n - 3)
-                temp += n - 3
             else:
-                idx = (temp, temp + n)
-                temp += n
+                if(j > 0):
+                    idx = (temp_j - overlapping_words, (temp_j + m) - overlapping_words)
+                    sentences_ranges.append(idx)
+                    temp_j += (m - overlapping_words)
+                else:
+                    idx = (temp_j, temp_j + m)
+                    sentences_ranges.append(idx)
+                    temp_j += m
+                sentence = arrays_of_tokens[i][j:j+m]
             sentences.append(sentence)
-            sentences_word_index.append(idx)
-        article_sentences.append(sentences)
-        article_sentences_words_index.append(sentences_word_index)
-    return article_sentences, article_sentences_words_index
+        sentences_in_articles.append(np.asarray(sentences))
+        sentences_ranges_in_articles.append(sentences_ranges)
+    
+    return [np.asarray(sentences_in_articles), np.asarray(sentences_ranges_in_articles)]
 
 if(__name__ == '__main__'):
     path = 'C:/Users/Patdanai/Desktop/wiki-dictionary-[1-50000]/'
@@ -74,9 +80,9 @@ if(__name__ == '__main__'):
     sample2id = {article_id: i for i, article_id in enumerate(list(sample_ids))}
 
     ## words to word ids representation
-    id_representation = []
+    arrays_of_tokens = []
     for i in range(samples.__len__()):
-        id_representation.append([word2id[w] for w in samples[i]])
+        arrays_of_tokens.append([word2id[w] for w in samples[i]])
 
     remapped_article_ids = []
     for i in range(sample_ids.__len__()):
@@ -85,7 +91,7 @@ if(__name__ == '__main__'):
     words_per_sentence = 30
     overlapping_words = words_per_sentence // 2
     overlap_flag = True
-    article_sentences = k_words_separate(words_per_sentence, id_representation, overlap=overlap_flag, overlapping_words=overlapping_words)
+    article_sentences = m_words_separate(words_per_sentence, arrays_of_tokens, overlapping_words=overlapping_words)
 
     from keras.preprocessing import sequence
 
