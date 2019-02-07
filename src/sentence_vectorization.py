@@ -60,11 +60,12 @@ if(__name__ == '__main__'):
     for i in range(samples.__len__()):
         samples[i] = prep.remove_xml(samples[i])
     vocabularies = [w for doc in samples for w in doc]
-    vocabularies = prep.remove_noise(vocabularies)
+    vocabularies = prep.remove_noise(vocabularies)[0]
+    # print(vocabularies)
 
-    for i in range(samples.__len__()):
-        samples[i] = prep.remove_xml(samples[i])
-        samples[i] = prep.remove_noise(samples[i])
+    # for i in range(samples.__len__()):
+    #     samples[i] = prep.remove_xml(samples[i])
+    #     samples[i] = prep.remove_noise(samples[i])
 
     ## word to id transformation
     word2id = {}
@@ -80,52 +81,51 @@ if(__name__ == '__main__'):
     sample2id = {article_id: i for i, article_id in enumerate(list(sample_ids))}
 
     ## words to word ids representation
-    arrays_of_tokens = []
-    for i in range(samples.__len__()):
-        arrays_of_tokens.append([word2id[w] for w in samples[i]])
+    # arrays_of_tokens = []
+    # for i in range(samples.__len__()):
+    #     arrays_of_tokens.append([word2id[w] for w in samples[i]])
 
-    remapped_article_ids = []
-    for i in range(sample_ids.__len__()):
-        remapped_article_ids.append(sample2id[sample_ids[i]])
+    # remapped_article_ids = []
+    # for i in range(sample_ids.__len__()):
+    #     remapped_article_ids.append(sample2id[sample_ids[i]])
 
     words_per_sentence = 30
     overlapping_words = words_per_sentence // 2
     overlap_flag = True
-    article_sentences = m_words_separate(words_per_sentence, arrays_of_tokens, overlapping_words=overlapping_words)
+    # article_sentences = m_words_separate(words_per_sentence, arrays_of_tokens, overlapping_words=overlapping_words)
 
-    from keras.preprocessing import sequence
+    # from keras.preprocessing import sequence
 
-    padded_article_sentences = []
-    for i in range(article_sentences.__len__()):
-        padded_s = sequence.pad_sequences(article_sentences[i], maxlen=words_per_sentence)
-        padded_article_sentences.append(padded_s)
+    # padded_article_sentences = []
+    # for i in range(article_sentences.__len__()):
+    #     padded_s = sequence.pad_sequences(article_sentences[i], maxlen=words_per_sentence)
+    #     padded_article_sentences.append(padded_s)
 
-    sentences_article_ids = []
-    y_train_category = []
-    for i in range(padded_article_sentences.__len__()):
-        y_train_category.append(remapped_article_ids[i])
-        for j in range(padded_article_sentences[i].__len__()):
-            sentences_article_ids.append(remapped_article_ids[i])
+    # sentences_article_ids = []
+    # y_train_category = []
+    # for i in range(padded_article_sentences.__len__()):
+    #     y_train_category.append(remapped_article_ids[i])
+    #     for j in range(padded_article_sentences[i].__len__()):
+    #         sentences_article_ids.append(remapped_article_ids[i])
 
-    flatten_article_sentences = np.vstack(padded_article_sentences) # label each sentence with its article id
+    # flatten_article_sentences = np.vstack(padded_article_sentences) # label each sentence with its article id
 
-    from keras.utils import to_categorical
+    # from keras.utils import to_categorical
 
-    x = flatten_article_sentences.copy()
-    y = sentences_article_ids.copy()
-    input_output_label = list(zip(x, y))
-    np.random.shuffle(input_output_label)
-    x, y = list(zip(*input_output_label))
-    x = np.asarray(list(x))
-    y = np.asarray(list(y))
+    # x = flatten_article_sentences.copy()
+    # y = sentences_article_ids.copy()
+    # input_output_label = list(zip(x, y))
+    # np.random.shuffle(input_output_label)
+    # x, y = list(zip(*input_output_label))
+    # x = np.asarray(list(x))
+    # y = np.asarray(list(y))
 
-    x_train = x[:int(.8 * x.__len__())]
-    y_train = y[:int(.8 * y.__len__())]
-    x_test = x[int(.8 * x.__len__()):]
-    y_test = y[int(.8 * y.__len__()):]
+    # x_train = x[:int(.8 * x.__len__())]
+    # y_train = y[:int(.8 * y.__len__())]
+    # x_test = x[int(.8 * x.__len__()):]
+    # y_test = y[int(.8 * y.__len__()):]
 
-    print(x_test)
-    exit()
+    # print(x_test)
 
     from keras.layers import Activation, Bidirectional, Dense, Embedding, Flatten, InputLayer, LSTM, TimeDistributed
     from keras.layers.core import Masking
@@ -146,23 +146,23 @@ if(__name__ == '__main__'):
     model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['accuracy'])
     model.summary()
 
-    model.fit(x_train, to_categorical(y_train, num_classes=sample2id.__len__()), batch_size=32, epochs=8)
+    # model.fit(x_train, to_categorical(y_train, num_classes=sample2id.__len__()), batch_size=32, epochs=8)
 
-    if(overlap_flag):
-        model.save('./' + str(words_per_sentence) + 'w-' + str(overlapping_words) + '-overlap-sentence-vectorization-model-' + str(n) + '.h5')
-    else:
-        model.save('./' + str(words_per_sentence) + 'w-sentence-vectorization-model-' + str(n) + '.h5')
+    # if(overlap_flag):
+    #     model.save('./' + str(words_per_sentence) + 'w-' + str(overlapping_words) + '-overlap-sentence-vectorization-model-' + str(n) + '.h5')
+    # else:
+    #     model.save('./' + str(words_per_sentence) + 'w-sentence-vectorization-model-' + str(n) + '.h5')
 
-    scores = model.evaluate(x_test, to_categorical(y_test, num_classes=sample2id.__len__()))
-    print(scores)
-    print(f"{model.metrics_names[1]}: {scores[1] * 100} %")
+    # scores = model.evaluate(x_test, to_categorical(y_test, num_classes=sample2id.__len__()))
+    # print(scores)
+    # print(f"{model.metrics_names[1]}: {scores[1] * 100} %")
 
-    dense1_layer = Model(inputs=model.input, outputs=model.get_layer(index=3).output)
-    dense1_layer_output = dense1_layer.predict(np.asarray(x_test))
-    print('sentence vectorization output vvv ( dimension:', dense1_layer_output[0].__len__(), ')')
-    print(dense1_layer.predict(np.asarray(x_test)))
-    softmax_layer = Model(inputs=model.input, outputs=model.get_layer(index=4).output)
-    softmax_layer_output = softmax_layer.predict(np.asarray(x_test))
-    print(x_test)
-    print('softmax classification probabilities output vvv ( classes:', softmax_layer_output[0].__len__(), ')')
-    print(softmax_layer.predict(np.asarray(x_test)))
+    # dense1_layer = Model(inputs=model.input, outputs=model.get_layer(index=3).output)
+    # dense1_layer_output = dense1_layer.predict(np.asarray(x_test))
+    # print('sentence vectorization output vvv ( dimension:', dense1_layer_output[0].__len__(), ')')
+    # print(dense1_layer.predict(np.asarray(x_test)))
+    # softmax_layer = Model(inputs=model.input, outputs=model.get_layer(index=4).output)
+    # softmax_layer_output = softmax_layer.predict(np.asarray(x_test))
+    # print(x_test)
+    # print('softmax classification probabilities output vvv ( classes:', softmax_layer_output[0].__len__(), ')')
+    # print(softmax_layer.predict(np.asarray(x_test)))
