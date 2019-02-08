@@ -79,6 +79,8 @@ if(__name__ == '__main__'):
 
     id2word = {idx: w for w, idx in word2id.items()}
     sample2id = {article_id: i for i, article_id in enumerate(list(sample_ids))}
+    print((sample2id))
+    exit()
 
     ## words to word ids representation
     # arrays_of_tokens = []

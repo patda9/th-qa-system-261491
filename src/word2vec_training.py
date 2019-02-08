@@ -18,7 +18,7 @@ if(__name__ == '__main__'):
     tokens_path = 'C:/Users/Patdanai/Desktop/wiki-dictionary-[1-50000]/' # get tokenized articles content
     plain_text_path = 'C:/Users/Patdanai/Desktop/documents-nsc/' # get plain text article content
     tokens_dataset = os.listdir(tokens_path)
-    n_samples = 5 # number of samples from nsc questions
+    n_samples = 512 # number of samples from nsc questions
 
     models_ws_archs_path = './models'
     model_files = os.listdir(models_ws_archs_path)
@@ -115,6 +115,8 @@ if(__name__ == '__main__'):
             pass
     # create word_id to word dictionary
     id2word = {idx: w for w, idx in word2id.items()}
+
+    doc_id2class = {doc_id: i for i, doc_id in enumerate(list(selected_article_ids))}
     
     # pprint(word2id) # TESTING FUNCTION: dict of words: ids
     # pprint(id2word) # TESTING FUNCTION: dict of ids: words
@@ -172,28 +174,35 @@ if(__name__ == '__main__'):
                 except:
                     temp_sentence.append(np.zeros(embedding_shape))
             temp_article.append(np.asarray(temp_sentence))
-            temp_document_id.append(selected_article_ids[i])
+            temp_document_id.append((selected_article_ids[i]))
         document_ids.append(temp_document_id)
         embedded_sentences.append(np.asarray(temp_article))
 
-    # print(embedded_sentences)
-    print(embedded_sentences.__len__())
-    print(document_ids.__len__())
-    exit()
-    # print(embedded_sentences[0].__len__())
-    # print(embedded_sentences[0][0].__len__())
+    # print(embedded_sentences.shape)
+    # print(document_ids)
+
+    from keras.utils import to_categorical
+
+    flatten_embedded_sentences = np.vstack(embedded_sentences)
+    flatten_document_ids = np.hstack(document_ids)
+    # print(flatten_embedded_sentences.shape)
+    x_train = flatten_embedded_sentences.copy()
+
+    document_classes = []
+    for doc_id in flatten_document_ids:
+        document_classes.append(doc_id2class[doc_id])
+    
+    y_train = to_categorical(document_classes, dtype=np.int32)
 
     from keras.layers import Activation, Bidirectional, Dense, Embedding, Flatten, Input, LSTM, SpatialDropout1D, TimeDistributed, BatchNormalization
     from keras.models import load_model, Model
     from keras.optimizers import Adam
-    from keras.utils import to_categorical
 
-    document_classes = 6 # selected_article_ids.__len__() + 1
     lstm_output_size = 128
     
     # input layer
-    embedded_sequences = Input(shape=(max_sequence_length, 64))
-    dropout_input_sequences = SpatialDropout1D(.2)(embedded_sequences)
+    embedded_sequences = Input(shape=(max_sequence_length, embedding_shape[0]))
+    dropout_input_sequences = SpatialDropout1D(.25)(embedded_sequences)
 
     # lstm network layer
     lstm_layer = Bidirectional(LSTM(lstm_output_size))(dropout_input_sequences)
@@ -201,14 +210,16 @@ if(__name__ == '__main__'):
     # output layer
     batch_norm_sequences = BatchNormalization()(lstm_layer)
     word_vector_weights = Dense(embedding_shape[0])(batch_norm_sequences)
-    predictions = Dense(document_classes, activation='softmax')(word_vector_weights)
+    predictions = Dense(selected_article_ids.__len__(), activation='softmax')(word_vector_weights)
 
     # construct model
     model = Model(inputs=embedded_sequences, outputs=predictions)
     model.compile(loss='categorical_crossentropy', optimizer=Adam(epsilon=1e-8), metrics=['accuracy'])
     model.summary()
 
-    # model.fit(x_train, to_categorical(y_train, num_classes=sample2id.__len__()), batch_size=32, epochs=8)
+    print(doc_id2class)
+    model.fit(x_train, y_train, batch_size=16, epochs=16)
     
     # TODO next prepare training set (x_train, y_train) testing set (x_test, y_test) 
-    # *!* random more sample from corpus that not in 4000 nsc qustions
+    # *!* random more sample from corpus that not in 4000 nsc qustions    
+    model.save('./models/' + str(words_per_sentence) + 'w-' + str(overlapping_words) + '-overlap-sentence-vectorization-model-' + str(n_samples) + '.h5')

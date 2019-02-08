@@ -17,7 +17,7 @@ if(__name__ == '__main__'):
     tokens_path = 'C:/Users/Patdanai/Desktop/wiki-dictionary-[1-50000]/' # get tokenized articles content
     plain_text_path = 'C:/Users/Patdanai/Desktop/documents-nsc/' # get plain text article content
     tokens_dataset = os.listdir(tokens_path)
-    n_samples = 5 # number of samples from nsc questions
+    n_samples = 512 # number of samples from nsc questions
 
     models_ws_archs_path = 'C:/Users/Patdanai/Desktop/492/th-qa-system-261491/models'
     model_files = os.listdir(models_ws_archs_path)
@@ -103,20 +103,20 @@ if(__name__ == '__main__'):
     # and preprocessed tokens indexes
     print(np.asarray(original_tokens_ranges[0])) # each before-preprocessing token's ending position
 
-    # # create vocabularies from input articles
-    # vocabularies = [article[i] for article in remaining_tokens for i in range(article.__len__())]
-    # # create word to id dictionary
-    # word2id = {}
-    # for (i, w) in enumerate(set(vocabularies)):
-    #     try:
-    #         word2id[w] = i
-    #     except ValueError:
-    #         pass
-    # # create word_id to word dictionary
-    # id2word = {idx: w for w, idx in word2id.items()}
+    # create vocabularies from input articles
+    vocabularies = [article[i] for article in remaining_tokens for i in range(article.__len__())]
+    # create word to id dictionary
+    word2id = {}
+    for (i, w) in enumerate(set(vocabularies)):
+        try:
+            word2id[w] = i
+        except ValueError:
+            pass
+    # create word_id to word dictionary
+    id2word = {idx: w for w, idx in word2id.items()}
     
-    # # pprint(word2id) # TESTING FUNCTION: dict of words: ids
-    # # pprint(id2word) # TESTING FUNCTION: dict of ids: words
+    # pprint(word2id) # TESTING FUNCTION: dict of words: ids
+    # pprint(id2word) # TESTING FUNCTION: dict of ids: words
 
     """
     output: 
@@ -184,10 +184,24 @@ if(__name__ == '__main__'):
     # from keras.optimizers import Adam
     # from keras.utils import to_categorical
 
-    # if(overlap_flag):
-    #     model = load_model('./models/' + str(words_per_sentence) + 'w-' + str(overlapping_words) + '-overlap-sentence-vectorization-model-' + str(n_samples) + '.h5')
-    # else:
-    #     model = load_model('./models/' + str(words_per_sentence) + 'w-sentence-vectorization-model-' + str(n_samples) + '.h5')
+    # model = load_model('./models/' + str(words_per_sentence) + 'w-' + str(overlapping_words) + '-overlap-sentence-vectorization-model-' + str(n_samples) + '.h5')
+
+    # # input layer
+    # embedded_sequences = Input(shape=(max_sequence_length, embedding_shape[0]))
+    # dropout_input_sequences = SpatialDropout1D(.25)(embedded_sequences)
+
+    # # lstm network layer
+    # lstm_layer = Bidirectional(LSTM(lstm_output_size))(dropout_input_sequences)
+    
+    # # output layer
+    # batch_norm_sequences = BatchNormalization()(lstm_layer)
+    # word_vector_weights = Dense(embedding_shape[0])(batch_norm_sequences)
+    # predictions = Dense(selected_article_ids.__len__(), activation='softmax')(word_vector_weights)
+
+    # # construct model
+    # model = Model(inputs=embedded_sequences, outputs=predictions)
+    # model.compile(loss='categorical_crossentropy', optimizer=Adam(epsilon=1e-8), metrics=['accuracy'])
+    # model.summary()
 
     # vectorize_model = Sequential()
     # vectorize_model.add(Embedding(word2id.__len__(), 64, input_length=words_per_sentence, name='e'))
