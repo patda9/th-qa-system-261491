@@ -243,7 +243,7 @@ if(__name__ == '__main__'):
     model.summary()
 
     print(doc_id2class)
-    model.fit(x_train, y_train, batch_size=16, epochs=epochs)
+    model.fit(x_train, y_train, batch_size=1, epochs=epochs)
     
     # TODO next prepare training set (x_train, y_train) testing set (x_test, y_test) 
     # *!* random more sample from corpus that not in 4000 nsc qustions    

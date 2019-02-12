@@ -18,7 +18,7 @@ if(__name__ == '__main__'):
     tokens_path = 'C:/Users/Patdanai/Desktop/wiki-dictionary-[1-50000]/' # get tokenized articles content
     plain_text_path = 'C:/Users/Patdanai/Desktop/documents-nsc/' # get plain text article content
     tokens_dataset = os.listdir(tokens_path)
-    n_samples = 32 # number of samples from nsc questions
+    n_samples = 1024 # number of samples from nsc questions
 
     models_ws_archs_path = 'C:/Users/Patdanai/Desktop/492/th-qa-system-261491/models'
     model_files = os.listdir(models_ws_archs_path)
@@ -250,7 +250,7 @@ if(__name__ == '__main__'):
 
     lstm_output_size = 128
 
-    vectorize_model = load_model('./models/' + str(words_per_sentence) + 'w-' + str(overlapping_words) + '-overlap-sentence-vectorization-model-' + str(512) + '.h5')
+    vectorize_model = load_model('./models/' + str(words_per_sentence) + 'w-' + str(overlapping_words) + '-overlap-sentence-vectorization-model-' + str(768) + '-16.h5')
     vectorize_model.summary()
 
     # preprocess ของวินเนอร์ไม่เปลี่ยนตำแหน่งตัวอักษร
@@ -263,7 +263,7 @@ if(__name__ == '__main__'):
     #   "article_id":6865
     # }
 
-    dense1_layer = Model(input=vectorize_model.input, output=vectorize_model.get_layer(index=4).output)
+    dense1_layer = Model(input=vectorize_model.input, output=vectorize_model.get_layer(index=5).output)
     dense1_layer_question_outputs = dense1_layer.predict(x_questions)
 
     print(dense1_layer_question_outputs.__len__())
@@ -328,15 +328,6 @@ if(__name__ == '__main__'):
             print('question:', selected_plain_text_questions[i])
             print('rank['+ str(j) + '] answer sentence from program:', selected_plain_text_article[i][begin_of_sentence:end_of_sentence])
             print('begin:', begin_of_sentence, 'end:', end_of_sentence)
-            answer_details = {
-                "rank": i, 
-                "question_id": selected_questions_numbers[i], 
-                "question": selected_plain_text_questions[i],  
-                "answer_begin_position ": original_sentence_character_positions[i][j][0], 
-                "answer_end_position": original_sentence_character_positions[i][j][-1], 
-                "article_id": selected_article_ids[i], 
-                "similarity_score": float(min_distances[i][j])
-            }
         candidates.append(answer_details)
     print(candidates)
 
@@ -357,7 +348,10 @@ if(__name__ == '__main__'):
             jth_closest_sentence = min_distance_indexes[i][j]
             temp_candidate_idx_range = m_words_sentence_ranges[i][jth_closest_sentence]
             candidate_idx_range = list(range(temp_candidate_idx_range[0], temp_candidate_idx_range[-1]))
-            ans_idx_range = list(range(answer_indexes[i][0], answer_indexes[i][-1] + 1))
+            try:
+                ans_idx_range = list(range(answer_indexes[i][0], answer_indexes[i][-1] + 1))
+            except:
+                break
             has_answer = 0
             for k in range(ans_idx_range.__len__()):
                 print('answer indexes:', ans_idx_range, 'sentence indexes:', candidate_idx_range)
@@ -381,9 +375,12 @@ if(__name__ == '__main__'):
     
     for i in range(answer_sentences.__len__()):
         for j in range(answer_sentences[i].__len__()):
-            print('question:', selected_tokenized_questions[i])
-            print('true answer: ', answer_sentences[i][j][0])
-            print('rank:', answer_sentence_ranks[i][j])
+            try:
+                print('question:', selected_tokenized_questions[i])
+                print('true answer: ', answer_sentences[i][j][0])
+                print('rank:', answer_sentence_ranks[i][j])
+            except:
+                pass
 
     # # answer_sentence_charater_locations = []
     # # for i in range(answer_sentences.__len__()):
@@ -393,40 +390,39 @@ if(__name__ == '__main__'):
     # print(selected_tokenized_articles[10].__len__())
     # print(answer_sentences[10])
 
-    # answer_sentence_character_positions = []
-    # temp_answer_sentence_character_positions = []
-    # for i in range(answer_sentences.__len__()):
-    #     temp = []
-    #     for j in range(answer_sentences[i].__len__()):
-    #         temp.append((answer_sentences[i][j][1][0], answer_sentences[i][0][1][-1]))
-    #     temp_answer_sentence_character_positions.append(temp)
+    answer_sentence_character_positions = []
+    temp_answer_sentence_character_positions = []
+    for i in range(answer_sentences.__len__()):
+        temp = []
+        for j in range(answer_sentences[i].__len__()):
+            temp.append((answer_sentences[i][j][1][0], answer_sentences[i][0][1][-1]))
+        temp_answer_sentence_character_positions.append(temp)
     
-    # for i in range(temp_answer_sentence_character_positions.__len__()):
-    #     try:
-    #         if(temp_answer_sentence_character_positions[i]):
-    #             for j in range(temp_answer_sentence_character_positions[i].__len__()):
-    #                 start = temp_answer_sentence_character_positions[i][j][0]
-    #                 end = temp_answer_sentence_character_positions[i][j][-1]
-    #                 answer_sentence_character_positions.append((original_preprocessed_cumulative_word_lengths[i][start], original_preprocessed_cumulative_word_lengths[i][end]))
-    #         else:
-    #             answer_sentence_character_positions.append((-18, -18))
-    #     except IndexError:
-    #         print(start, end, i)
-    # print(answer_sentence_character_positions)
-    # exit()
+    for i in range(temp_answer_sentence_character_positions.__len__()):
+        try:
+            if(temp_answer_sentence_character_positions[i]):
+                for j in range(temp_answer_sentence_character_positions[i].__len__()):
+                    start = temp_answer_sentence_character_positions[i][j][0]
+                    end = temp_answer_sentence_character_positions[i][j][-1]
+                    answer_sentence_character_positions.append((original_tokens_ranges[i][start], original_tokens_ranges[i][end]))
+            else:
+                pass
+        except IndexError:
+            print(start, end, i)
+    print(answer_sentence_character_positions)
 
-    # # answer_sentence_char_locs = []
-    # # for i in range(answer_sentences.__len__()):
-    # #     temp_char_loc = []
-    # #     for j in range(answer_sentences[i].__len__()):
-    # #         start_of_sentence_idx = answer_sentences[i][j][1][0]
-    # #         print([id2word[idx] for idx in answer_sentences[i][j][0]], preprocessed_articles_sentences_index[i][start_of_sentence_idx])
-    # #         print(preprocessed_cumulative_word_lengths[i].__len__())
-    # #         end_of_sentence_idx = answer_sentences[i][j][1][-1]
-    # #         print(end_of_sentence_idx)
-    # #         temp_char_loc.append((preprocessed_cumulative_word_lengths[i][start_of_sentence_idx], preprocessed_cumulative_word_lengths[i][end_of_sentence_idx]))
-    # #     answer_sentence_char_locs.append(temp_char_loc)
-    # # print(answer_sentence_char_locs)
+    # answer_sentence_char_locs = []
+    # for i in range(answer_sentences.__len__()):
+    #     temp_char_loc = []
+    #     for j in range(answer_sentences[i].__len__()):
+    #         start_of_sentence_idx = answer_sentences[i][j][1][0]
+    #         print([id2word[idx] for idx in answer_sentences[i][j][0]], preprocessed_articles_sentences_index[i][start_of_sentence_idx])
+    #         print(preprocessed_cumulative_word_lengths[i].__len__())
+    #         end_of_sentence_idx = answer_sentences[i][j][1][-1]
+    #         print(end_of_sentence_idx)
+    #         temp_char_loc.append((preprocessed_cumulative_word_lengths[i][start_of_sentence_idx], preprocessed_cumulative_word_lengths[i][end_of_sentence_idx]))
+    #     answer_sentence_char_locs.append(temp_char_loc)
+    # print(answer_sentence_char_locs)
     
     # temp_answer_sentences = answer_sentences.copy()
     # for i in range(answer_sentences.__len__()):
@@ -434,30 +430,37 @@ if(__name__ == '__main__'):
     #         temp_answer_sentences[i][j] = [id2word[idx] for idx in answer_sentences[i][j]]
     #         print(temp_answer_sentences[i][j])
 
-    # ranks = []
-    # for i in range(answer_masks.__len__()):
-    #     temp_ranks = []
-    #     for j in range(answer_masks[i].__len__()):
-    #         if(answer_masks[i][j]):
-    #             temp_ranks.append(j)
-    #     if(not(temp_ranks)):
-    #         temp_ranks.append(-18)
-    #     ranks.append(temp_ranks)
-    
-    # flattened_ranks = [rank for ans in ranks for rank in ans]
-    # # print(flattened_ranks)
-    # ranks_ocurrences = dict(collections.Counter(flattened_ranks))
-    # print(ranks_ocurrences)
+    ranks = []
+    for i in range(answer_masks.__len__()):
+        temp_ranks = []
+        for j in range(answer_masks[i].__len__()):
+            if(answer_masks[i][j] and j < 32):
+                temp_ranks.append(j)
+            else:
+                pass
+        if(not(temp_ranks)):
+            pass
+        ranks.append(temp_ranks)
 
-    # proportion_ranks = []
-    # for i in range(ranks.__len__()):
-    #     proportion_rank = []
-    #     for j in range(ranks[i].__len__()):
-    #         print(ranks[i][j])
-    #         proportion_rank.append(ranks[i][j] / padded_content_id_representation[i].__len__())
-    #     proportion_ranks.append(proportion_rank)
-    # print(proportion_ranks)
-    # flattened_proportion_ranks = [rank for ans in proportion_ranks for rank in ans]
+    print(ranks)
+    
+    flattened_ranks = [rank for ans in ranks for rank in ans]
+    print(flattened_ranks)
+    ranks_ocurrences = dict(collections.Counter(flattened_ranks))
+    print(ranks_ocurrences)
+
+    proportion_ranks = []
+    for i in range(ranks.__len__()):
+        proportion_rank = []
+        for j in range(ranks[i].__len__()):
+            print(ranks[i][j])
+            temp = ranks[i][j] / m_words_preprocessed_articles[i].__len__()
+            if(0 <= temp <= .6):
+                proportion_rank.append(temp)
+            
+        proportion_ranks.append(proportion_rank)
+    print(proportion_ranks)
+    flattened_proportion_ranks = [rank for ans in proportion_ranks for rank in ans]
 
     # # for i in range(selected_questions.__len__()):
     #     # print(selected_questions[i])
@@ -486,31 +489,30 @@ if(__name__ == '__main__'):
     # # print(np.asarray(ranks))
     # # # print(np.asarray(proportion_ranks))
     
-    # fig1, axs1 = plt.subplots(1, tight_layout=True)
-    # n, bins, patches = axs1.hist(flattened_ranks, bins='auto')
-    # fracs = n / n.max()
-    # norm = colors.Normalize(fracs.min(), fracs.max())
-    # for thisfrac, thispatch in zip(fracs, patches):
-    #     color = plt.cm.viridis(norm(thisfrac))
-    #     thispatch.set_facecolor(color)
-    # title = str(words_per_sentence) + '-Words Sentence Model (from: ' + str(n_samples) + ' Samples)'
-    # fig1.suptitle('N-ranks similarity between question and sentences in article', fontsize=12, fontweight='bold')
-    # axs1.set_title(title)
-    # axs1.set_xlabel('Closest to sentence rank (n-th)')
-    # axs1.set_ylabel('Occurrence')
-    # plt.savefig('./tmp1-' + str(words_per_sentence) + '.png')
-    # plt.show()
+    fig1, axs1 = plt.subplots(1, tight_layout=True)
+    n, bins, patches = axs1.hist(flattened_ranks, bins=32)
+    fracs = n / n.max()
+    norm = colors.Normalize(fracs.min(), fracs.max())
+    for thisfrac, thispatch in zip(fracs, patches):
+        color = plt.cm.viridis(norm(thisfrac))
+        thispatch.set_facecolor(color)
+    title = str(words_per_sentence) + '-Words Sentence (with ' + str(overlapping_words//2) + ' words overlapped) Model ' + str(n_samples) + ' Samples'
+    fig1.suptitle('Rank-N similarity sentence that is true answer', fontsize=12, fontweight='bold')
+    axs1.set_xlabel('Closest to sentence rank (n-th)')
+    axs1.set_ylabel('Occurrence')
+    plt.savefig('./result/tmp1-' + str(words_per_sentence) + '.png')
+    plt.show()
 
-    # fig2, axs2 = plt.subplots(1)
-    # n, bins, patches = axs2.hist(flattened_proportion_ranks, bins='auto')
-    # fracs = n / n.max()
-    # norm = colors.Normalize(fracs.min(), fracs.max())
-    # for thisfrac, thispatch in zip(fracs, patches):
-    #     color = plt.cm.viridis(norm(thisfrac))
-    #     thispatch.set_facecolor(color)
-    # axs2.set_title(title)
-    # fig2.suptitle('N-ranks similarity between question and sentences in article', fontsize=12, fontweight='bold')
-    # axs2.set_xlabel('Closest to sentence rank (n-th) / Article length (sentences)')
-    # axs2.set_ylabel('Occurrence')
-    # plt.savefig('./tmp2-' + str(words_per_sentence) + '.png')
-    # plt.show()
+    fig2, axs2 = plt.subplots(1)
+    n, bins, patches = axs2.hist(flattened_proportion_ranks, bins=32)
+    fracs = n / n.max()
+    norm = colors.Normalize(fracs.min(), fracs.max())
+    for thisfrac, thispatch in zip(fracs, patches):
+        color = plt.cm.viridis(norm(thisfrac))
+        thispatch.set_facecolor(color)
+    axs2.set_title(title)
+    fig2.suptitle('Rank-N similarity sentence that is true answer / sentence length', fontsize=12, fontweight='bold')
+    axs2.set_xlabel('Rank (n-th) / Document length (sentences)')
+    axs2.set_ylabel('Occurrence')
+    plt.savefig('./result/tmp2-' + str(words_per_sentence) + '.png')
+    plt.show()

@@ -6,7 +6,7 @@ import re
 
 np.random.seed(0)
 
-def m_words_separate(m, arrays_of_tokens, overlapping_words=0):
+def m_words_separate(m, arrays_of_tokens, overlapping_words=0, question_number=0):
     sentences_in_articles = []
     sentences_ranges_in_articles = []
     for i in range(arrays_of_tokens.__len__()):
@@ -15,11 +15,19 @@ def m_words_separate(m, arrays_of_tokens, overlapping_words=0):
         temp_j = 0
         for j in range(0, arrays_of_tokens[i].__len__(), m-overlapping_words):
             if((j + m) > arrays_of_tokens[i].__len__()):
-                fill_length = (j + m) - arrays_of_tokens[i].__len__()
-                idx = (j-fill_length, arrays_of_tokens[i].__len__())
-                sentence = arrays_of_tokens[i][j-fill_length:j+m]
-                sentences_ranges.append(idx)
-                break
+                if(arrays_of_tokens[i].__len__() < m):
+                    fill_length = m - arrays_of_tokens[i].__len__()
+                    for k in range(fill_length):
+                        arrays_of_tokens[i].append(arrays_of_tokens[i][-1])
+                    idx = (j, m)
+                    sentence = arrays_of_tokens[i][j:m]
+                    sentences_ranges.append(idx)
+                else:
+                    fill_length = (j + m) - arrays_of_tokens[i].__len__()
+                    idx = (j-fill_length, arrays_of_tokens[i].__len__())
+                    sentence = arrays_of_tokens[i][j-fill_length:j+m]
+                    sentences_ranges.append(idx)
+                    break
             else:
                 if(j > 0):
                     idx = (temp_j - overlapping_words, (temp_j + m) - overlapping_words)
@@ -31,8 +39,9 @@ def m_words_separate(m, arrays_of_tokens, overlapping_words=0):
                     temp_j += m
                 sentence = arrays_of_tokens[i][j:j+m]
             sentences.append(sentence)
-        sentences_in_articles.append(np.asarray(sentences))
+        sentences_in_articles.append(sentences)
         sentences_ranges_in_articles.append(sentences_ranges)
+        print('Question: ' + str(question_number + 1) + ' Converting to ' + str(m) + '-words sentences. [' + str(i) + '/' + str(arrays_of_tokens.__len__()) + '] \r', end='')
     
     return [np.asarray(sentences_in_articles), np.asarray(sentences_ranges_in_articles)]
 
@@ -61,11 +70,6 @@ if(__name__ == '__main__'):
         samples[i] = prep.remove_xml(samples[i])
     vocabularies = [w for doc in samples for w in doc]
     vocabularies = prep.remove_noise(vocabularies)[0]
-    # print(vocabularies)
-
-    # for i in range(samples.__len__()):
-    #     samples[i] = prep.remove_xml(samples[i])
-    #     samples[i] = prep.remove_noise(samples[i])
 
     ## word to id transformation
     word2id = {}
@@ -80,7 +84,6 @@ if(__name__ == '__main__'):
     id2word = {idx: w for w, idx in word2id.items()}
     sample2id = {article_id: i for i, article_id in enumerate(list(sample_ids))}
     print((sample2id))
-    exit()
 
     ## words to word ids representation
     # arrays_of_tokens = []
