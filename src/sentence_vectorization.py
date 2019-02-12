@@ -129,7 +129,7 @@ if(__name__ == '__main__'):
 
     # print(x_test)
 
-    from keras.layers import Activation, Bidirectional, Dense, Embedding, Flatten, InputLayer, LSTM, TimeDistributed
+    from keras.layers import Activation, Bidirectional, Dense, Embedding, Flatten, InputLayer, LSTM
     from keras.layers.core import Masking
     from keras.models import load_model, Model, Sequential
     from keras.optimizers import Adam
