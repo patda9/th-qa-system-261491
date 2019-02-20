@@ -18,7 +18,7 @@ if(__name__ == '__main__'):
     tokens_path = 'C:/Users/Patdanai/Desktop/wiki-dictionary-[1-50000]/' # get tokenized articles content
     plain_text_path = 'C:/Users/Patdanai/Desktop/documents-nsc/' # get plain text article content
     tokens_dataset = os.listdir(tokens_path)
-    n_samples = 1024 # number of samples from nsc questions
+    n_samples = 1600 # number of samples from nsc questions
 
     models_ws_archs_path = 'C:/Users/Patdanai/Desktop/492/th-qa-system-261491/models'
     model_files = os.listdir(models_ws_archs_path)
@@ -96,13 +96,13 @@ if(__name__ == '__main__'):
         original_tokens_ranges.append(preprocessed_article[2])
         j += 1
 
-    print(np.asarray(remaining_tokens[0])) # TESTING FUNCTION: arrays of preprocessed tokens,
+    # print(np.asarray(remaining_tokens[0])) # TESTING FUNCTION: arrays of preprocessed tokens,
     # and also => preprocessed tokens indexes
     # and also => and preprocessed tokens ranges
-    print(np.asarray(original_tokens_indexes[0]))
-    print(np.asarray(list(zip(original_tokens_indexes[0], remaining_tokens[0])))) # TESTING FUNCTION: arrays of preprocessed tokens
+    # print(np.asarray(original_tokens_indexes[0]))
+    # print(np.asarray(list(zip(original_tokens_indexes[0], remaining_tokens[0])))) # TESTING FUNCTION: arrays of preprocessed tokens
     # and preprocessed tokens indexes
-    print(np.asarray(original_tokens_ranges[0])) # each before-preprocessing token's ending position
+    # print(np.asarray(original_tokens_ranges[0])) # each before-preprocessing token's ending position
 
     # create vocabularies from input articles
     vocabularies = [article[i] for article in remaining_tokens for i in range(article.__len__())]
@@ -131,7 +131,7 @@ if(__name__ == '__main__'):
         temp = prep.remove_noise(question)[0]
         preprocessed_questions.append(temp)
     
-    print(np.asarray(preprocessed_questions))
+    # print(np.asarray(preprocessed_questions))
 
     words_per_sentence = 20
     overlapping_words = words_per_sentence // 2
@@ -142,7 +142,7 @@ if(__name__ == '__main__'):
 
     saved_wv_model = Word2Vec.load('C:/Users/Patdanai/Desktop/492/word2vec.model')
     word_vectors = saved_wv_model.wv
-    print("Example of word vectors: {}".format(word_vectors.vocab['มกราคม']))
+    # print("Example of word vectors: {}".format(word_vectors.vocab['มกราคม']))
 
     max_number_of_words = word_vectors.vocab.__len__()
     max_sequence_length = words_per_sentence
@@ -166,8 +166,8 @@ if(__name__ == '__main__'):
         document_ids.append(temp_document_id)
         embedded_sentences.append(np.asarray(temp_article))
     
-    print(embedded_sentences[-1])
-    print(document_ids[-1])
+    # print(embedded_sentences[-1])
+    # print(document_ids[-1])
 
     # find ans index
     answer_char_positions = []
@@ -178,16 +178,22 @@ if(__name__ == '__main__'):
                 answer_end_pos = q['answer_end_position'] - 1 # pos - 1 to refer array index
                 answer_char_positions.append((answer_begin_pos, answer_end_pos))
 
-    print(answer_char_positions)
-
+    # print(answer_char_positions)
+    
+    unranks = 0
     answers = []
     for i in range(n_samples):
-        begin = answer_char_positions[i][0]
-        end = answer_char_positions[i][-1]
-        answer = selected_plain_text_article[i][begin:end]
-        answers.append(answer)
+        try:
+            begin = answer_char_positions[i][0]
+            end = answer_char_positions[i][-1]
+            answer = selected_plain_text_article[i][begin:end]
+            answers.append(answer)
+        except:
+            unranks += 1
+            del(remaining_tokens[i])
+            del(original_tokens_ranges[i])
     
-    print(answers)
+    # print(answers)
 
     answer_indexes = []
     for i in range(remaining_tokens.__len__()):
@@ -222,7 +228,7 @@ if(__name__ == '__main__'):
     x = flatten_embedded_sentences
     y = to_categorical(document_classes)
 
-    print(selected_tokenized_questions)
+    # print(selected_tokenized_questions)
 
     # vectorize questions
     embedded_questions = []
@@ -230,7 +236,7 @@ if(__name__ == '__main__'):
         temp_embedded_questions = []
         for j in range(selected_tokenized_questions[i].__len__()):
             try:
-                print(selected_tokenized_questions[i])
+                # print(selected_tokenized_questions[i])
                 embedded_token = word_vectors[selected_tokenized_questions[i][j]]
                 temp_embedded_questions.append(embedded_token)
             except:
@@ -242,7 +248,7 @@ if(__name__ == '__main__'):
         embedded_questions.append(np.asarray(temp_embedded_questions))
 
     x_questions = np.asarray(embedded_questions)
-    print(x_questions)
+    # print(x_questions)
 
     from keras.layers import Activation, Bidirectional, Dense, Input, LSTM, SpatialDropout1D, BatchNormalization
     from keras.models import load_model, Model
@@ -266,7 +272,7 @@ if(__name__ == '__main__'):
     dense1_layer = Model(input=vectorize_model.input, output=vectorize_model.get_layer(index=5).output)
     dense1_layer_question_outputs = dense1_layer.predict(x_questions)
 
-    print(dense1_layer_question_outputs.__len__())
+    # print(dense1_layer_question_outputs.__len__())
 
     # vectorize all sentence in x
     dense1_layer_candidate_outputs = []
@@ -274,7 +280,7 @@ if(__name__ == '__main__'):
         temp = dense1_layer.predict(x[i])
         dense1_layer_candidate_outputs.append(temp)
     
-    print(dense1_layer_candidate_outputs.__len__())
+    # print(dense1_layer_candidate_outputs.__len__())
 
     distance_matrix = []
     for i in range(dense1_layer_candidate_outputs.__len__()):
@@ -325,9 +331,9 @@ if(__name__ == '__main__'):
         for j in range(original_sentence_character_positions[i].__len__()):
             begin_of_sentence = original_sentence_character_positions[i][j][0] # ***** answer for winner
             end_of_sentence = original_sentence_character_positions[i][j][-1] # ***** answer for winner
-            print('question:', selected_plain_text_questions[i])
-            print('rank['+ str(j) + '] answer sentence from program:', selected_plain_text_article[i][begin_of_sentence:end_of_sentence])
-            print('begin:', begin_of_sentence, 'end:', end_of_sentence)
+            # print('question:', selected_plain_text_questions[i])
+            # print('rank['+ str(j) + '] answer sentence from program:', selected_plain_text_article[i][begin_of_sentence:end_of_sentence])
+            # print('begin:', begin_of_sentence, 'end:', end_of_sentence)
         candidates.append(answer_details)
     print(candidates)
 
@@ -354,15 +360,15 @@ if(__name__ == '__main__'):
                 break
             has_answer = 0
             for k in range(ans_idx_range.__len__()):
-                print('answer indexes:', ans_idx_range, 'sentence indexes:', candidate_idx_range)
+                # print('answer indexes:', ans_idx_range, 'sentence indexes:', candidate_idx_range)
                 if(ans_idx_range[k] in candidate_idx_range):
                     has_answer = 1
                 else:
                     has_answer = 0
                     break
-                print(str(k) + '-th answer word is in sentence:', bool(has_answer))
+                # print(str(k) + '-th answer word is in sentence:', bool(has_answer))
             if(has_answer):
-                print('rank:', jth_closest_sentence)
+                # print('rank:', jth_closest_sentence)
                 answer_sentence.append([m_words_preprocessed_articles[i][jth_closest_sentence], candidate_idx_range])
             answer_mask.append(has_answer)
             answer_sentence_rank.append(jth_closest_sentence)
@@ -370,8 +376,8 @@ if(__name__ == '__main__'):
         answer_sentence_ranks.append(answer_sentence_rank)
         answer_masks.append(answer_mask)
 
-    print(np.asarray(answer_sentence_ranks))
-    print(np.asarray(answer_sentences))
+    # print(np.asarray(answer_sentence_ranks))
+    # print(np.asarray(answer_sentences))
     
     for i in range(answer_sentences.__len__()):
         for j in range(answer_sentences[i].__len__()):
@@ -408,8 +414,9 @@ if(__name__ == '__main__'):
             else:
                 pass
         except IndexError:
-            print(start, end, i)
-    print(answer_sentence_character_positions)
+            # print(start, end, i)
+            pass
+    # print(answer_sentence_character_positions)
 
     # answer_sentence_char_locs = []
     # for i in range(answer_sentences.__len__()):
@@ -434,34 +441,34 @@ if(__name__ == '__main__'):
     for i in range(answer_masks.__len__()):
         temp_ranks = []
         for j in range(answer_masks[i].__len__()):
-            if(answer_masks[i][j] and j < 32):
+            if(answer_masks[i][j] and j < 50):
                 temp_ranks.append(j)
-            else:
-                pass
         if(not(temp_ranks)):
-            pass
+            unranks += 1
         ranks.append(temp_ranks)
-
-    print(ranks)
+    
+    total = [(n_samples - unranks), unranks]
+    print('***', n_samples - unranks, unranks)
     
     flattened_ranks = [rank for ans in ranks for rank in ans]
-    print(flattened_ranks)
+    # print(flattened_ranks)
     ranks_ocurrences = dict(collections.Counter(flattened_ranks))
-    print(ranks_ocurrences)
+    # print(ranks_ocurrences)
 
     proportion_ranks = []
     for i in range(ranks.__len__()):
         proportion_rank = []
         for j in range(ranks[i].__len__()):
-            print(ranks[i][j])
-            temp = ranks[i][j] / m_words_preprocessed_articles[i].__len__()
-            if(0 <= temp <= .6):
+            # print(ranks[i][j])
+            temp = 1 - (ranks[i][j] / m_words_preprocessed_articles[i].__len__())
+            if(0 <= temp <= 1):
                 proportion_rank.append(temp)
-            
         proportion_ranks.append(proportion_rank)
-    print(proportion_ranks)
+    # print(proportion_ranks)
     flattened_proportion_ranks = [rank for ans in proportion_ranks for rank in ans]
+    print('****', unranks)
 
+    # exit()
     # # for i in range(selected_questions.__len__()):
     #     # print(selected_questions[i])
     #     # print(answer_indexes[i][0])
@@ -490,29 +497,43 @@ if(__name__ == '__main__'):
     # # # print(np.asarray(proportion_ranks))
     
     fig1, axs1 = plt.subplots(1, tight_layout=True)
-    n, bins, patches = axs1.hist(flattened_ranks, bins=32)
+    n, bins, patches = axs1.hist(flattened_ranks, bins=50)
     fracs = n / n.max()
     norm = colors.Normalize(fracs.min(), fracs.max())
     for thisfrac, thispatch in zip(fracs, patches):
         color = plt.cm.viridis(norm(thisfrac))
         thispatch.set_facecolor(color)
-    title = str(words_per_sentence) + '-Words Sentence (with ' + str(overlapping_words//2) + ' words overlapped) Model ' + str(n_samples) + ' Samples'
-    fig1.suptitle('Rank-N similarity sentence that is true answer', fontsize=12, fontweight='bold')
-    axs1.set_xlabel('Closest to sentence rank (n-th)')
+    # title = str(words_per_sentence) + '-Words Sentence (with ' + str(overlapping_words//2) + ' words overlapped) Model ' + str(n_samples) + ' Samples'
+    # fig1.suptitle('True answer similarity ranks', fontsize=12, fontweight='bold')
+    # axs1.set_xlabel('True answer sentence Rank <N-TH>')
+    axs1.set_xlabel('Rank\n[1-50]')
     axs1.set_ylabel('Occurrence')
-    plt.savefig('./result/tmp1-' + str(words_per_sentence) + '.png')
+    plt.savefig('./result/midterm-tmp1-' + str(words_per_sentence) + '.png')
     plt.show()
 
     fig2, axs2 = plt.subplots(1)
-    n, bins, patches = axs2.hist(flattened_proportion_ranks, bins=32)
+    n, bins, patches = axs2.hist(flattened_proportion_ranks, bins=50)
     fracs = n / n.max()
     norm = colors.Normalize(fracs.min(), fracs.max())
     for thisfrac, thispatch in zip(fracs, patches):
-        color = plt.cm.viridis(norm(thisfrac))
+        color = plt.cm.rainbow(norm(thisfrac))
         thispatch.set_facecolor(color)
-    axs2.set_title(title)
-    fig2.suptitle('Rank-N similarity sentence that is true answer / sentence length', fontsize=12, fontweight='bold')
-    axs2.set_xlabel('Rank (n-th) / Document length (sentences)')
+    # axs2.set_title(title)
+    # fig2.suptitle('Ranking efficiency', fontsize=12, fontweight='bold')
+    # axs2.set_xlabel('1 - (Rank <N-TH> / Document length <SENTENCE>)')
+    axs2.set_xlabel('Efficiency: (1-(Rank/Document length<sentence>))\n[0, 1]')
     axs2.set_ylabel('Occurrence')
-    plt.savefig('./result/tmp2-' + str(words_per_sentence) + '.png')
+    plt.savefig('./result/midterm-tmp2-' + str(words_per_sentence) + '.png')
+    plt.show()
+
+    # Pie chart, where the slices will be ordered and plotted counter-clockwise:
+    labels = 'Ranked', 'Unranked'
+    sizes = total
+    explode = (0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+
+    fig3, ax3 = plt.subplots()
+    ax3.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+            shadow=True, startangle=90)
+    ax3.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    plt.savefig('./result/midterm-tmp3-' + str(words_per_sentence) + '.png')
     plt.show()
