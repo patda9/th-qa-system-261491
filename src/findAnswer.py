@@ -23,7 +23,7 @@ def extractNumberFromString(string):
     return re.findall('\d+', string)
 
 
-def hasNumbers(inputString):
+def hasNumbers(inputString,thai_number_text):
     for i in thai_number_text:
         if inputString.startswith(i) or inputString.endswith(i):
             return True
@@ -111,7 +111,7 @@ def relevance_score(question, sentence, candidate, question_word):
     return score
 
 
-def find_answer_word(j,rand):
+def find_answer_word(i,j,rand,s,possible_answer,question_word_index,question,doc_id,answer_position):
     print(i, s)
     print(possible_answer[-1])
     print(question_word_index, question[i])

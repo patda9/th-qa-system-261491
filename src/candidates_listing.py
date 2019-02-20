@@ -86,7 +86,6 @@ def locate_candidates_sentence(embedded_questions, embedded_sentences, m_word_se
                                 original_tokens_ranges, dense_layer):
     for i in range(embedded_sentences.__len__()):
         if(not(embedded_sentences[i].size)):
-            print('fucking problem:', i)
             embedded_sentences[i] = embedded_questions[i-1]
     
     candidate_sentence_vectors = []

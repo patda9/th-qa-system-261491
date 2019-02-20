@@ -221,7 +221,7 @@ if(__name__ == '__main__'):
     from keras.models import load_model, Model
     from keras.optimizers import Adam
 
-    epochs = 16
+    epochs = 24
     lstm_output_size = 128
     
     # input layer
@@ -243,7 +243,27 @@ if(__name__ == '__main__'):
     model.summary()
 
     print(doc_id2class)
-    model.fit(x_train, y_train, batch_size=1, epochs=epochs)
+    history = model.fit(x_train, y_train, batch_size=32, epochs=epochs, validation_split=.2)
+
+    print(history.history.keys())
+    # summarize history for accuracy
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('Model accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['Training accuracy', 'Validation accuracy'], loc='upper left')
+    plt.savefig('./result/midterm1-acc-' + str(n_samples) + '.png')
+    plt.show()
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Model loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Training loss', 'Validation loss'], loc='upper left')
+    plt.savefig('./result/midterm1-loss-' + str(n_samples) + '.png')
+    plt.show()
     
     # TODO next prepare training set (x_train, y_train) testing set (x_test, y_test) 
     # *!* random more sample from corpus that not in 4000 nsc qustions    
@@ -258,6 +278,6 @@ if(__name__ == '__main__'):
     # print(dense1_layer.predict(np.asarray(x_test)))
     # softmax_layer = Model(inputs=model.input, outputs=model.get_layer(index=4).output)
     # softmax_layer_output = softmax_layer.predict(np.asarray(x_test))
-    # print(x_test)
+    # print(x_test + '\r', end='')
     # print('softmax classification probabilities output vvv ( classes:', softmax_layer_output[0].__len__(), ')')
     # print(softmax_layer.predict(np.asarray(x_test)))
