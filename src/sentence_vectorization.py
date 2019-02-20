@@ -41,7 +41,7 @@ def m_words_separate(m, arrays_of_tokens, overlapping_words=0, question_number=0
             sentences.append(sentence)
         sentences_in_articles.append(sentences)
         sentences_ranges_in_articles.append(sentences_ranges)
-        print('Question: ' + str(question_number + 1) + ' Converting to ' + str(m) + '-words sentences. [' + str(i) + '/' + str(arrays_of_tokens.__len__()) + '] \r', end='')
+        print('Batch: ' + str(question_number + 1) + ' Converting to ' + str(m) + '-words sentences. [' + str(i) + '/' + str(arrays_of_tokens.__len__()) + '] \r', end='')
     
     return [np.asarray(sentences_in_articles), np.asarray(sentences_ranges_in_articles)]
 
