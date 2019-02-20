@@ -17,13 +17,13 @@ def findDocuments():
     print("Time to initial db", end - start)
     # initial data and test set
     q = open('./../new_sample_questions_tokenize.json', mode='r', encoding="utf-8-sig") # change path
-    # q = q[:100]
-    # n_q = open("no_stop_words_questions_.json", mode='r', encoding="utf-8-sig") # change path
+    # q = open('./ThaiQACorpus-EvaluationDataset-tokenize.json', mode='r', encoding="utf-8-sig") # change path
+    
     data = json.load(q)
-    validate = json.load(open("./../new_sample_questions_answer.json", mode='r', encoding="utf-8-sig")) # change path
+    # validate = json.load(open("./../new_sample_questions_answer.json", mode='r', encoding="utf-8-sig")) # change path
 
     doc = 0
-    data = data[doc:4]
+    data = data[doc:2000]
     print(data.__len__())
     save = 0
     string = ''
@@ -35,7 +35,7 @@ def findDocuments():
     for s in data:
         start = time.time()
         string += "question " + str(doc)
-        print("question", doc, s, validate[doc])
+        print("question", doc, s)
 
         # segment until no space and do rule-based
         suffix = ['คือ', 'กี่', 'ใด']
@@ -155,40 +155,43 @@ def findDocuments():
 
         print(answer.__len__(), answer[:6])
         test_output.append(answer[:50]) ### return this .
+        doc += 1
+
+    return test_output
         # write in text file
-        answer = list(answer)
-        ans_int = ''
-        find = []
-        for i in range(pool.__len__()):
-            find.append([])
-            for j in pool[i]:
-                find[-1].append(j[0])
-            try:
-                find[i].index(str(validate[doc]))
-            except ValueError:
-                ans_int += ' c[' + str(i) + '] '
+        # answer = list(answer)
+        # ans_int = ''
+        # find = []
+        # for i in range(pool.__len__()):
+        #     find.append([])
+        #     for j in pool[i]:
+        #         find[-1].append(j[0])
+        #     try:
+        #         find[i].index(str(validate[doc]))
+        #     except ValueError:
+        #         ans_int += ' c[' + str(i) + '] '
 
         ########################################################################################
 
-        try:
-            if answer.index(str(validate[doc])) < 6:
-                string += ': 1'
-            else:
-                string += ': 0'
-            string += " rank" + str(answer.index(str(validate[doc])))
-        except ValueError:
-            string += ": 0 cdoc"
+        # try:
+        #     if answer.index(str(validate[doc])) < 6:
+        #         string += ': 1'
+        #     else:
+        #         string += ': 0'
+        #     string += " rank" + str(answer.index(str(validate[doc])))
+        # except ValueError:
+        #     string += ": 0 cdoc"
 
-        string += ' || [' + str(word) + ']' + ans_int
-        for i in range(find.__len__()):
-            string += str(find[i].__len__()) + ' '
-        string += str(cantfind)
+        # string += ' || [' + str(word) + ']' + ans_int
+        # for i in range(find.__len__()):
+        #     string += str(find[i].__len__()) + ' '
+        # string += str(cantfind)
 
-        end = time.time()
-        print(end - start, 'secs')
-        string += ' ' + str(end - start) + 'secs \n'
-        doc += 1
-        save += 1
+        # end = time.time()
+        # print(end - start, 'secs')
+        # string += ' ' + str(end - start) + 'secs \n'
+        # doc += 1
+        # save += 1
     #     if save == 100 or doc == 4000:
     #         with open("./result/result_q_weight5_fill_c[0].txt", "a", encoding="utf-8") as text_file:
     #             text_file.write(string)
@@ -197,4 +200,4 @@ def findDocuments():
     #     if doc == 100:
     #         break
     # # os.system("shutdown /s /t 30")
-    return test_output
+    
