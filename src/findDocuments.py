@@ -8,22 +8,22 @@ from sqlitedict import SqliteDict
 from pythainlp.corpus import wordnet , stopwords
 from usage import alarm , rreplace
 
-def findDocuments():
+def findDocuments(start_idx=0, end_idx=0):
     # initial databased
     start = time.time()
-    dict = SqliteDict('./data/doc_add_missing.sqlite', autocommit=True) # change path
+    dict = SqliteDict('./data/sqlite_db/doc_add_missing.sqlite', autocommit=True) # change path
     dict = dict['doc']
     end = time.time()
     print("Time to initial db", end - start)
     # initial data and test set
-    q = open('./../new_sample_questions_tokenize.json', mode='r', encoding="utf-8-sig") # change path
+    q = open('./data/new_sample_questions_tokenize.json', mode='r', encoding="utf-8-sig") # change path
     # q = open('./ThaiQACorpus-EvaluationDataset-tokenize.json', mode='r', encoding="utf-8-sig") # change path
     
     data = json.load(q)
     # validate = json.load(open("./../new_sample_questions_answer.json", mode='r', encoding="utf-8-sig")) # change path
 
     doc = 0
-    data = data[doc:2000]
+    data = data[start_idx:end_idx]
     print(data.__len__())
     save = 0
     string = ''
@@ -192,10 +192,10 @@ def findDocuments():
         # string += ' ' + str(end - start) + 'secs \n'
         # doc += 1
         # save += 1
-    #     if save == 100 or doc == 4000:
-    #         with open("./result/result_q_weight5_fill_c[0].txt", "a", encoding="utf-8") as text_file:
-    #             text_file.write(string)
-    #         save = 0
+        # if save == 100 or doc == 4000:
+        #     with open("./result/result_q_weight5_fill_c[0].txt", "a", encoding="utf-8") as text_file:
+        #         text_file.write(string)
+        #     save = 0
     #         string = ''
     #     if doc == 100:
     #         break

@@ -32,7 +32,7 @@ def vectorize_questions(tokenized_questions, word_vectors, embedding_shape=(100,
         while(temp_embedded_questions.__len__() > words_per_sentence):
             temp_embedded_questions.pop()
         embedded_questions.append(np.asarray(temp_embedded_questions))
-    return embedded_questions
+    return np.asarray(embedded_questions)
 
 def calculate_distance(candidate_sentence_vectors, question_vectors):
     distance_matrix = []

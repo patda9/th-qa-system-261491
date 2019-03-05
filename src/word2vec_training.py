@@ -12,27 +12,27 @@ from matplotlib import colors
 from matplotlib.ticker import PercentFormatter
 from pprint import pprint
 
-np.random.seed(0)
+# np.random.seed(0)
 
 if(__name__ == '__main__'):
-    tokens_path = 'C:/Users/Patdanai/Desktop/wiki-dictionary-[1-50000]/' # get tokenized articles content
+    tokens_path = 'D:/Users/Patdanai/th-qasys-db/tokenized_wiki_corpus/' # get tokenized articles content
     plain_text_path = 'C:/Users/Patdanai/Desktop/documents-nsc/' # get plain text article content
     tokens_dataset = os.listdir(tokens_path)
-    n_samples = 512+256 # number of samples from nsc questions
-
-    models_ws_archs_path = './models'
-    model_files = os.listdir(models_ws_archs_path)
+    n_samples = 2400 # number of samples from nsc questions
+    part = 0
+    # models_ws_archs_path = './models'
+    # model_files = os.listdir(models_ws_archs_path)
 
     nsc_sample_questions = []
-    with open('./../new_sample_questions_tokenize.json', 'r', encoding='utf-8', errors='ignore') as f:
+    with open('./data/new_sample_questions_tokenize.json', 'r', encoding='utf-8', errors='ignore') as f:
         nsc_sample_questions = json.load(f)
     
-    nsc_answer_doc_id = []
-    with open('./../new_sample_questions_answer.json', 'r', encoding='utf-8', errors='ignore') as f:
-        nsc_answer_doc_id = json.load(f)
+    # nsc_answer_doc_id = []
+    # with open('./data/new_sample_questions_answer.json', 'r', encoding='utf-8', errors='ignore') as f:
+    #     nsc_answer_doc_id = json.load(f)
 
     nsc_answer_details = {}
-    with open('./../new_sample_questions.json', 'r', encoding='utf-8', errors='ignore') as f:
+    with open('./data/new_sample_questions.json', 'r', encoding='utf-8', errors='ignore') as f:
         nsc_answer_details = json.load(f)
     
     # get first n samples from questions
@@ -42,11 +42,24 @@ if(__name__ == '__main__'):
     selected_questions_numbers = []
     selected_plain_text_questions = []
     for q in nsc_answer_details['data']:
-        if(q['article_id'] < last_doc_id and count < n_samples): # limitted preprocessed docs id: 282972
+        if(count < n_samples): # limitted preprocessed docs id: 282972
             selected_article_ids.append(q['article_id'])
             selected_questions_numbers.append(q['question_id'])
             selected_plain_text_questions.append(q['question'])
             count += 1
+
+    # n_samples = n_samples
+    print(selected_article_ids.__len__())
+
+    selected_article_ids = selected_article_ids[:n_samples]
+    selected_questions_numbers = selected_questions_numbers[:n_samples]
+    nsc_sample_questions = nsc_sample_questions[:n_samples]
+    # nsc_answer_details = nsc_answer_details[:n_samples]
+
+    print(len(selected_article_ids))
+    print(len(selected_questions_numbers))
+    print(len(nsc_sample_questions))
+    print(len(nsc_answer_details))
 
     # print(np.asarray(list(zip(selected_questions_numbers, selected_article_ids)))) # TESTING FUNCTION: map question numbers to article ids
 
@@ -60,9 +73,9 @@ if(__name__ == '__main__'):
     for i in selected_article_ids:
         article_path = os.path.join(tokens_path, str(i) + '.json')
         plain_text_article_path = os.path.join(plain_text_path, str(i) + '.txt')
-        with open(plain_text_article_path, 'r', encoding='utf-8', errors='ignore') as f:
-            plain_text_article = f.read()
-        selected_plain_text_article.append(plain_text_article)
+        # with open(plain_text_article_path, 'r', encoding='utf-8', errors='ignore') as f:
+        #     plain_text_article = f.read()
+        # selected_plain_text_article.append(plain_text_article)
         with open(article_path, 'r', encoding='utf-8', errors='ignore') as f:
             article_tokens = json.load(f)
         selected_tokenized_articles.append(article_tokens)
@@ -95,7 +108,6 @@ if(__name__ == '__main__'):
         original_tokens_indexes.append(preprocessed_article[1])
         original_tokens_ranges.append(preprocessed_article[2])
         j += 1 
-
     # print(np.asarray(remaining_tokens[0])) # TESTING FUNCTION: arrays of preprocessed tokens,
     # and also => preprocessed tokens indexes
     # and also => and preprocessed tokens ranges
@@ -133,17 +145,31 @@ if(__name__ == '__main__'):
     
     # print(np.asarray(preprocessed_questions))
 
+    # over_lapping_percentages = [5/4, 4/3, 2, 4, 10, 20]
     words_per_sentence = 20
+
     overlapping_words = words_per_sentence // 2
 
     m_words_preprocessed = sv.m_words_separate(words_per_sentence, remaining_tokens, overlapping_words=overlapping_words)
     m_words_preprocessed_article = m_words_preprocessed[0]
     m_words_preprocessed_sentence_ranges = m_words_preprocessed[1]
+    generated_dataset = m_words_preprocessed_article
 
-    # print(np.asarray(m_words_preprocessed_article))
-    # print(np.asarray(m_words_preprocessed_sentence_ranges))
+    # generated_dataset = []
+    # for i in range(len(over_lapping_percentages)):
+    #     overlapping_words = words_per_sentence // 2
 
-    saved_model = Word2Vec.load('C:/Users/Patdanai/Desktop/492/word2vec.model')
+    #     m_words_preprocessed = sv.m_words_separate(words_per_sentence, remaining_tokens, overlapping_words=overlapping_words)
+    #     m_words_preprocessed_article = m_words_preprocessed[0]
+    #     m_words_preprocessed_sentence_ranges = m_words_preprocessed[1]
+
+    #     print(m_words_preprocessed_article.__len__())
+    #     generated_dataset += list(m_words_preprocessed_article)
+
+    # print(np.asarray(generated_dataset).shape)
+    # print(np.asarray(m_words_preprocessed_sentence_ranges).shape)
+
+    saved_model = Word2Vec.load('D:/Users/Patdanai/th-qasys-db/word_vectors_model/word2vec.model')
     # print(saved_model)
     word_vectors = saved_model.wv
     # print("Example of word vectors: {}".format(word_vectors.vocab['วนิดา']))
@@ -152,9 +178,9 @@ if(__name__ == '__main__'):
     max_sequence_length = words_per_sentence
     # print(max_number_of_words)
 
-    vocabularies = [article[i] for article in remaining_tokens for i in range(article.__len__())]
-    word_index = {token: i+1 for i, token in enumerate(set(vocabularies))}
-    index_word = {i+1: token for i, token in enumerate(set(vocabularies))}
+    # vocabularies = [article[i] for article in remaining_tokens for i in range(article.__len__())]
+    # word_index = {token: i+1 for i, token in enumerate(set(vocabularies))}
+    # index_word = {i+1: token for i, token in enumerate(set(vocabularies))}
 
     # print(word_index)
     # print(index_word)
@@ -162,14 +188,14 @@ if(__name__ == '__main__'):
     embedding_shape = word_vectors['มกราคม'].shape # use as word vector's dimension
     embedded_sentences = [] # use as x (input) of network
     document_ids = [] # use as output classes
-    for i in range(m_words_preprocessed_article.__len__()):
+    for i in range(generated_dataset.__len__()):
         temp_article = []
         temp_document_id = []
-        for j in range(m_words_preprocessed_article[i].__len__()):
+        for j in range(generated_dataset[i].__len__()):
             temp_sentence = []
-            for k in range(m_words_preprocessed_article[i][j].__len__()):
+            for k in range(generated_dataset[i][j].__len__()):
                 try:
-                    embedded_token = word_vectors[m_words_preprocessed_article[i][j][k]]
+                    embedded_token = word_vectors[generated_dataset[i][j][k]]
                     temp_sentence.append(embedded_token)
                 except:
                     temp_sentence.append(np.zeros(embedding_shape))
@@ -193,7 +219,6 @@ if(__name__ == '__main__'):
                 except:
                     print('i:', i, 'j:', j, 'k:', k)
                     print(embedded_sentences[i][j])
-
     # exit()
 
     from keras.utils import to_categorical
@@ -217,11 +242,13 @@ if(__name__ == '__main__'):
     y_train = y[:int(.8 * y.__len__())]
     y_test = y[int(.8 * y.__len__()):]
 
+    from keras.callbacks import ModelCheckpoint
     from keras.layers import Activation, Bidirectional, Dense, Embedding, Flatten, Input, LSTM, Masking, SpatialDropout1D, BatchNormalization
     from keras.models import load_model, Model
     from keras.optimizers import Adam
 
-    epochs = 24
+    epochs = 64
+    # epochs = 2
     lstm_output_size = 128
     
     # input layer
@@ -239,11 +266,19 @@ if(__name__ == '__main__'):
 
     # construct model
     model = Model(inputs=embedded_sequences, outputs=predictions)
-    model.compile(loss='categorical_crossentropy', optimizer=Adam(epsilon=1e-8), metrics=['accuracy'])
+    if(part):
+        model = load_model('./models/20wps-1000samples-24epochs-0.h5')
+    else:
+        model = load_model('./models/20wps-2400samples-32epochs-0-02.h5')
+        # model.compile(loss='categorical_crossentropy', optimizer=Adam(epsilon=1e-8), metrics=['accuracy'])
     model.summary()
 
-    print(doc_id2class)
-    history = model.fit(x_train, y_train, batch_size=32, epochs=epochs, validation_split=.2)
+    # create callback
+    file_path = './models/improvements/weights-improvement-{epoch:02d}-{val_acc:.4f}-1.h5'
+    checkpoint = ModelCheckpoint(file_path, monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=False, mode='max')
+    callbacks_list = [checkpoint]
+
+    history = model.fit(x_train, y_train, batch_size=128, callbacks=callbacks_list, epochs=epochs, validation_split=.2)
 
     print(history.history.keys())
     # summarize history for accuracy
@@ -253,7 +288,7 @@ if(__name__ == '__main__'):
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
     plt.legend(['Training accuracy', 'Validation accuracy'], loc='upper left')
-    plt.savefig('./result/midterm1-acc-' + str(n_samples) + '.png')
+    plt.savefig('./results/training/acc-%dwps-%dsamples-%depochs-%d.png' % (words_per_sentence, n_samples, epochs, part))
     plt.show()
     # summarize history for loss
     plt.plot(history.history['loss'])
@@ -262,12 +297,12 @@ if(__name__ == '__main__'):
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
     plt.legend(['Training loss', 'Validation loss'], loc='upper left')
-    plt.savefig('./result/midterm1-loss-' + str(n_samples) + '.png')
+    plt.savefig('./results/training/loss-%dwps-%dsamples-%depochs-%d.png' % (words_per_sentence, n_samples, epochs, part))
     plt.show()
     
     # TODO next prepare training set (x_train, y_train) testing set (x_test, y_test) 
     # *!* random more sample from corpus that not in 4000 nsc qustions    
-    model.save('./models/' + str(words_per_sentence) + 'w-' + str(overlapping_words) + '-overlap-sentence-vectorization-model-' + str(n_samples) + str(epochs) + '.h5')
+    model.save('./models/%dwps-%dsamples-%depochs-%d-02.h5' % (words_per_sentence, n_samples, epochs, part))
 
     scores = model.evaluate(x_test, y_test)
     print(f"{model.metrics_names[1]}: {scores[1] * 100} %")

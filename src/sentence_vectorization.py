@@ -17,8 +17,11 @@ def m_words_separate(m, arrays_of_tokens, overlapping_words=0, question_number=0
             if((j + m) > arrays_of_tokens[i].__len__()):
                 if(arrays_of_tokens[i].__len__() < m):
                     fill_length = m - arrays_of_tokens[i].__len__()
+                    print('-fill length', fill_length, arrays_of_tokens[i].__len__())
+                    arrays_of_tokens[i] = list(arrays_of_tokens[i])
                     for k in range(fill_length):
                         arrays_of_tokens[i].append(arrays_of_tokens[i][-1])
+                    arrays_of_tokens[i] = np.asarray(arrays_of_tokens[i])
                     idx = (j, m)
                     sentence = arrays_of_tokens[i][j:m]
                     sentences_ranges.append(idx)
@@ -41,8 +44,8 @@ def m_words_separate(m, arrays_of_tokens, overlapping_words=0, question_number=0
             sentences.append(sentence)
         sentences_in_articles.append(sentences)
         sentences_ranges_in_articles.append(sentences_ranges)
-        print('Batch: ' + str(question_number + 1) + ' Converting to ' + str(m) + '-words sentences. [' + str(i) + '/' + str(arrays_of_tokens.__len__()) + '] \r', end='')
-    
+        # print('Batch: ' + str(question_number + 1) + ' Converting to ' + str(m) + '-words sentences. [' + str(i) + '/' + str(arrays_of_tokens.__len__()) + '] \r', end='')
+        # print('\n')
     return [np.asarray(sentences_in_articles), np.asarray(sentences_ranges_in_articles)]
 
 if(__name__ == '__main__'):
