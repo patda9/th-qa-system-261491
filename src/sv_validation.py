@@ -46,7 +46,7 @@ def plot_histogram(path, ranks, bins_num=1, legends=[False, [], 'best'], x_label
 # check if candidate sentences are answer or not and what is their rank (less euclidean more rank)
 def check_origin(answer_details, candidate_answers):
     doc_not_found = 0
-
+    max_c_num = 8
     ans_not_found_question = []
     doc_not_found_question = []
     has_ans_question = []
@@ -57,30 +57,35 @@ def check_origin(answer_details, candidate_answers):
         ans_pos_range = (answer_details[i]['answer_begin_position '], answer_details[i]['answer_end_position'])
         k = 1 # c_doc number
         for c_doc in candidate_answers[i]:
-            c_rank = 0
+            # print(c_rank)
+            # exit()
             c_ranks = []
             c_doc_id = c_doc[0]['article_id']
             doc_ids_type = type(c_doc_id)
             if(doc_ids_type(ans_doc_id) == c_doc_id):
-                print(len(has_ans_question), 'Found [', k, 'th] document', sep='')
+                print(len(has_ans_question), ' Found [', k, 'th] document', sep='')
                 for c_sentence in c_doc:
-                    c_pos_range = range(c_sentence['answer_begin_position '], c_sentence['answer_end_position'])
-                    if(ans_pos_range[0] in c_pos_range and ans_pos_range[1] in c_pos_range):
-                        # print('full answer in sentence')
-                        # print(ans_pos_range, c_pos_range)
-                        # print(c_sentence['candidate_no'])
-                        c_ranks.append(c_rank)
-                    elif(ans_pos_range[0] in c_pos_range and not(ans_pos_range[1] in c_pos_range)):
-                        # print('part of answer in sentence')
-                        # print(ans_pos_range, c_pos_range)
-                        # print(c_sentence['candidate_no'])
-                        c_ranks.append(c_rank)
-                    elif(not(ans_pos_range[0] in c_pos_range) and ans_pos_range[1] in c_pos_range):
-                        # print('part of answer in sentence')
-                        # print(ans_pos_range, c_pos_range)
-                        # print(c_sentence['candidate_no'])
-                        c_ranks.append(c_rank)
-                    c_rank += 1
+                    c_rank = c_sentence['candidate_rank']
+                    if(c_rank < max_c_num):
+                        c_pos_range = range(c_sentence['answer_begin_position '], c_sentence['answer_end_position'])
+                        if(ans_pos_range[0] in c_pos_range and ans_pos_range[1] in c_pos_range):
+                            # print('full answer in sentence')
+                            # print(ans_pos_range, c_pos_range)
+                            # print(c_sentence['candidate_no'])
+                            # print(c_sentence)
+                            # print(c_rank)
+                            c_ranks.append(c_rank)
+                        elif(ans_pos_range[0] in c_pos_range and not(ans_pos_range[1] in c_pos_range)):
+                            # print('part of answer in sentence')
+                            # print(ans_pos_range, c_pos_range)
+                            # print(c_sentence['candidate_no'])
+                            c_ranks.append(c_rank)
+                        elif(not(ans_pos_range[0] in c_pos_range) and ans_pos_range[1] in c_pos_range):
+                            # print('part of answer in sentence')
+                            # print(ans_pos_range, c_pos_range)
+                            # print(c_sentence['candidate_no'])
+                            c_ranks.append(c_rank)
+                    # c_rank += 1
                 if(not(c_ranks)):
                     ans_not_found_question.append(ans_doc_id)
                 else:
@@ -125,10 +130,10 @@ def check_origin(answer_details, candidate_answers):
     true_ans_ranks = temp
     print(true_ans_ranks)
 
-    bins = 16
-    plot_histogram('./results/reports/c_ranks.png', true_ans_ranks, 
+    bins = max_c_num
+    plot_histogram('./results/reports/c_ranks1.png', true_ans_ranks, 
                     bins_num=bins, 
-                    x_label='Candidates rank [1-' + str(bins) + ']', 
+                    x_label='Candidates rank 1' + str(bins) + '', 
                     y_label='Occurrence')
     
     hansq = [2 for doc in has_ans_question]
@@ -136,19 +141,20 @@ def check_origin(answer_details, candidate_answers):
     anfq = [1 for doc in ans_not_found_question]
     dnfq = [0 for doc in doc_not_found_question]
     has_ans_types = 'auto'
-    candidate_stats = hansq + anfq +dnfq
+    candidate_stats = hansq + anfq + dnfq
     print(candidate_stats)
 
-    plot_histogram('./results/reports/has_ans.png', candidate_stats, 
+    plot_histogram('./results/reports/has_ans1.png', candidate_stats, 
                     bins_num=has_ans_types, 
                     x_label='Candidate answer statistics', 
                     y_label='Occurrence', 
-                    legends=[True, ['0: doc not found', '1: ans not found', '2: has ans'], 'best'])
+                    legends=[True, ['0: document not found', '1: ans not found', '2: has ans'], 'best'])
 
 if __name__ == "__main__":
-    CANDIDATE_ANSWERS_PATH = './results/tmp/'
-    candidate_answers_f = os.listdir(CANDIDATE_ANSWERS_PATH)
+    CANDIDATE_ANSWERS_PATH = './results/test_data/'
+    candidate_answers_f = sorted(os.listdir(CANDIDATE_ANSWERS_PATH))
     print(candidate_answers_f)
+
     from time import sleep
     sleep(1)
 

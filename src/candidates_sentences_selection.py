@@ -4,17 +4,24 @@ import json
 import numpy as np
 import os
 import preprocessing as prep
-import sentence_vectorization as sv
+import rnn_compare_twotext as rc
 
+from keras.models import Model, Sequential, load_model
+from keras.layers import Input, Dense, LSTM, Multiply, Subtract, Dropout, GRU, Masking, Concatenate
 from pprint import pprint
+
+rnn_size = 32
+sentence_length = 40
+word_vector_length = 100
 
 def get_original_token_positions(document_id, documents_path):
     doc_path = os.path.join(documents_path, str(document_id) + '.json')
     with open(doc_path, 'r', encoding='utf-8', errors='ignore') as f:
         document = json.load(f)
-        preprocessed_document = prep.remove_noise(document)
+    preprocessed_document = prep.remove_noise(document)
+    doc_index = list(range(len(document)))
     
-    return preprocessed_document[1], preprocessed_document[2]
+    return doc_index, preprocessed_document[2]
 
 def get_sentence_vectorization_layer(model, idx=5):
     from keras.models import Model
@@ -109,7 +116,6 @@ def locate_candidate_answers(vectorized_question, vectorized_sentences, sentence
     return plaint_text_character_positions, min_distance_matrix, sentence_indexes
 
 def vectorize_question_tokens(tokenized_question, word_vectors, embedded_question=[], embedding_shape=(100, ), words_per_sentence=20):
-    # for i in range(tokenized_questions.__len__()):
     for j in range(tokenized_question.__len__()): # for word in tokenized question
         try:
             embedded_token = word_vectors[tokenized_question[j]]
@@ -118,161 +124,204 @@ def vectorize_question_tokens(tokenized_question, word_vectors, embedded_questio
             embedded_question.append(np.zeros(embedding_shape))
     while(embedded_question.__len__() < words_per_sentence):
         embedded_question.insert(0, np.zeros(embedding_shape))
-        print(embedded_question.__len__())
     while(embedded_question.__len__() > words_per_sentence):
         embedded_question = embedded_question[:words_per_sentence]
 
     return np.asarray(embedded_question)
 
-if __name__ == "__main__":
+# models structure
+def sentenceVector():
+    submodel = Sequential()
+    submodel.add(Masking(mask_value=0., input_shape=(sentence_length, word_vector_length, )))
+    submodel.add(GRU(rnn_size,activation='relu',name='sv_rnn1'))
+    submodel.add(Dropout(0.5))
+    return submodel
+
+def sentenceCompare():
+    candidate_sentence_sv = Input(shape=(rnn_size,))
+    question_sv = Input(shape=(rnn_size,))
+    concate = Concatenate()([candidate_sentence_sv, question_sv])
+    dense1 = Dense(32, activation='sigmoid',name='sc_dense1')(concate)
+    dense2 = Dense(32, activation='sigmoid',name='sc_dense2')(dense1)
+    similarity = Dense(1, activation='sigmoid',name='sc_dense3')(dense2)
+    submodel = Model(inputs=[candidate_sentence_sv, question_sv], outputs=similarity)
+    return submodel
+
+def candidate_similarity(candidate_document_ids=None): # None for file reading
     DOCUMENTS_PATH = 'D:/Users/Patdanai/th-qasys-db/tokenized_wiki_corpus/'
-    SV_MODEL_PATH = 'D:/Users/Patdanai/th-qasys-db/sentence_vectorization_models/20w-10-overlap-sentence-vectorization-model-768-16.h5'
-    SV_MODEL_PATH = './models/20wps-2000samples-16epochs-0-02.h5'
-    WV_PATH = 'D:/Users/Patdanai/th-qasys-db/preprocessed_corpus_wv/'
+    MODEL_PATH = './compare2text/compare_model_v5.h5'
+    SV_PATH = 'D:/Users/Patdanai/th-qasys-db/corpus_sv/'
+    WV_PATH = 'D:/Users/Patdanai/th-qasys-db/corpus_wv/'
     WV_MODEL_PATH = 'D:/Users/Patdanai/th-qasys-db/word_vectors_model/word2vec.model'
-    
-    # question_path = 'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/ThaiQACorpus-EvaluationDataset-tokenize.json'
-    question_path = 'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/new_sample_questions_tokenize.json'
+    questions_path = './results/question_sentence_tokens/question_sentence_tokens.json'
+    questions_path = 'C:\\Users\\Patdanai\\Workspace\\th-qa-system-261491\\results\\final\\question_sentence_tokens.json'
+
+    # MODEL_PATH = './models/compare_model_v3/191-0.7933.h5'
+    # questions_path = 'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/ThaiQACorpus-EvaluationDataset-tokenize.json'
+    # questions_path = 'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/new_sample_questions_tokenize.json'
     
     WORDS_PER_SENTENCE = 20
     OVERLAPPING_WORDS = WORDS_PER_SENTENCE // 2
 
     word_vectors = load_corpus_word_vectors(path=WV_MODEL_PATH)
-    sv_model = load_sentence_vectorization_model(SV_MODEL_PATH)
-    sv_layer = get_sentence_vectorization_layer(sv_model)
 
-    tokenized_questions, questions_num = load_tokenized_questions(question_path) # use this question num
-    print(questions_num)
-    # questions_num =
+    gru_sv = Input(shape=(rnn_size, ), name='pass_candidate_sv') # create tensor: sentence vector(s) database
 
-    # candidate_document_ids = [['115035', '229360', '544013', '722958', '70381', '884481'], ['376583', '736347', '562166', '804147', '3817', '52640'], 
-    #                             ['115035', '229360', '544013', '722958', '70381', '884481'], ['376583', '736347', '562166', '804147', '3817', '52640']]
+    qsv_model = sentenceVector() # submodel
+    qsv_model.load_weights('./compare2text/compare_model_v5.h5', by_name=True) # load submodel weight
+    qsv_model.summary()
+    qs_seq = Input(shape=(sentence_length, word_vector_length)) # create tensor
+    qsv_model = qsv_model(qs_seq) # add input tensor: question sequence
+
+    sc_model = sentenceCompare()
+    sc_model.load_weights('./compare2text/compare_model_v5.h5', by_name=True)
+    sc_model.summary()
+    similarity = sc_model([gru_sv, qsv_model]) # add input tensors: candidate sv, question sv
+
+    # form model
+    model = Model(inputs=[gru_sv, qs_seq], outputs=similarity)
+    model.load_weights(MODEL_PATH)
+    model.summary()
+
+    tokenized_questions, questions_num = load_tokenized_questions(questions_path) # use this question num
 
     begin_question = 0
-
-    # candidate_document_ids = fd.findDocuments(begin_question, questions_num)
-    # print(len(candidate_document_ids))
-
-    with open('./data/output_findDOC4000.json', 'r') as f:
+    with open('./results/final/candidate_doc_ids.json', 'r') as f:
         candidate_document_ids = json.load(f)
 
+    copy = []
     candidate_answers = []
     part = 0
-    print('part:', part)
-
+    chr_pointer = 0
+    print('Part: %d' % part)
     # implement small batch processing (1 question/batch)
     for i in range(0, candidate_document_ids.__len__()): # question
-        # print('Processing question [' + str(i) + '/' + str(candidate_document_ids.__len__()) + '] candidate documents. \r', end='')
-        
+        print('Processing question [' + str(i) + '/' + str(candidate_document_ids.__len__()) + '] candidate documents. \r')
+        array_of_wvs = []
         documents_index = [] # original one
         documents_lengths = [] # original one
-        array_of_wvs = []
-        for j in range(candidate_document_ids[i].__len__()): # candidate doc
+        tokenized_docs = []
+
+        temp_length = 7
+        if(len(candidate_document_ids[i]) < temp_length):
+            temp_length = len(candidate_document_ids[i])
+
+        for j in range(0, temp_length): # candidate doc
+        # for j in range(0, candidate_document_ids[i].__len__()): # candidate doc
             original_index, original_lengths = get_original_token_positions(candidate_document_ids[i][j], DOCUMENTS_PATH)
-            array_of_wvs.append(load_document_word_vectors(candidate_document_ids[i][j], WV_PATH))
+            array_of_wvs.append(np.load(SV_PATH + 'sv-' + str(candidate_document_ids[i][j]) + '.npy'))
             documents_index.append(original_index)
             documents_lengths.append(original_lengths)
-        # print(len(array_of_wvs))
-        # print(len(documents_index))
-        # print(len(documents_lengths))
-
-        # make sample becomes batch (size 1) for feeding through sv_layer
-        # embedded_question = np.expand_dims(vectorize_question_tokens(tokenized_questions[i], word_vectors), axis=0) # question_tokens => [question_tokens]
-        # question_vector = sv_layer.predict(embedded_question).flatten()
-        # print(embedded_question.shape)
-        # print(question_vector.shape)
-
-        m_tokens_groupping = sv.m_words_separate(WORDS_PER_SENTENCE, array_of_wvs, overlapping_words=OVERLAPPING_WORDS, question_number=i)
-        m_tokens_documents = np.asarray(m_tokens_groupping[0])
-        m_tokens_ranges = np.asarray(m_tokens_groupping[1])
+            tokenized_docs.append(load_document_word_vectors(candidate_document_ids[i][j], WV_PATH))
         
-        # print(m_tokens_documents)
-        # for i in m_tokens_documents:
-        #     print('i', i.__len__())
-        #     for j in i:
-        #         print('j', j.__len__())
+        m_words = prep.m_words_separate(WORDS_PER_SENTENCE, tokenized_docs, overlapping_words=WORDS_PER_SENTENCE//2)
+        m_words_sentences = m_words[0]
+        m_words_index_ranges = m_words[1]
+
+        question_wvs = []
+        temp = []
+        for k in range(len(tokenized_questions[i]['sentence_tokens'])):
+            try:
+                temp.append(word_vectors[tokenized_questions[i]['sentence_tokens'][k]])
+            except:
+                temp.append(np.zeros((rc.word_vector_length, )))
+        question_wvs.append(temp)
+        question_wvs = np.array(question_wvs)
         
-        # print(m_tokens_ranges.__len__())
+        temp = np.zeros((question_wvs.shape[0], rc.sentence_length - question_wvs.shape[1], rc.word_vector_length))
+        temp[:] = 0.
+        question_wvs = np.concatenate((temp, question_wvs), axis=1)
 
-        candidate_sentence_vectors = []
-        for j in range(len(m_tokens_documents)):
-            candidate_sentence_vectors.append(sv_layer.predict(np.asarray(m_tokens_documents[j])))
-        # print(candidate_sentence_vectors[1][0].shape)
-        candidate_sentence_vectors = np.asarray(candidate_sentence_vectors)
+        ordered_similarity = []
+        c_index_ranges = []
+        for j in range(len(array_of_wvs)):
+            temp = np.repeat(question_wvs, array_of_wvs[j].shape[0], axis=0)
+            prediction = model.predict([array_of_wvs[j], temp])
 
-        ### sentence, question vectorization
-        # print(tokenized_questions[i])
-        embedded_question = vectorize_question_tokens(tokenized_questions[i], word_vectors)
-        # print(embedded_question.shape)
-        vectorized_question = sv_layer.predict(np.array([embedded_question]))
-        # print(vectorized_question.flatten().shape)
+            ranks = np.argsort(prediction, axis=0).flatten()
 
-        distance_matrices = calculate_distance(vectorized_question, candidate_sentence_vectors)
-        # print(distance_matrices)
-        min_distance_indexes, ordered_distance_matrices = sort_distances(distance_matrices)
-        # print(min_distance_indexes)
-        # print(ordered_distance_matrices)
-        plain_text_character_positions, sentence_indexes = locate_plain_text_characters(m_tokens_ranges, 
-                                                                                        min_distance_indexes, 
-                                                                                        documents_lengths)
-        # print(plain_text_character_positions)
-        # print(sentence_indexes)
-        plain_text_character_positions, min_distance_matrix, sentence_indexes = locate_candidate_answers(vectorized_question, 
-                                                                                                            candidate_sentence_vectors, 
-                                                                                                            m_tokens_ranges, 
-                                                                                                            documents_lengths, max_num_candidate=16)
+            temp0 = []
+            temp1 = []
+            for k in range(len(ranks)):
+                temp0.append(prediction.flatten()[ranks[k]])
+                temp1.append(m_words_index_ranges[j][ranks[k]])
+            ordered_similarity.append(temp0)
+            c_index_ranges.append(temp1)
         
-        # print(min_distance_matrix)
-        # print(len(min_distance_matrix))
-        # print('---', len(plain_text_character_positions))
+        sentences_index = []
+        for j in range(len(m_words_index_ranges)):
+            temp = []
+            for k in range(len(c_index_ranges[j])):
+                start = c_index_ranges[j][k][0]
+                end = c_index_ranges[j][k][1]
+                temp.append(documents_index[j][start:end])
+            sentences_index.append(temp)
+
+        plain_text_character_positions = []
+        for j in range(len(sentences_index)):
+            temp_k = []
+            for k in range(len(sentences_index[j])):
+                temp_l = []
+                for l in range(len(sentences_index[j][k])):
+                    idx = sentences_index[j][k][l]
+                    temp_l.append(documents_lengths[j][idx])
+                temp_k.append(temp_l)
+            plain_text_character_positions.append(temp_k)
         
         temp_j = []
-        for j in range(len(candidate_document_ids[i])):
-            
+        for j in range(0, temp_length):
+        # for j in range(len(candidate_document_ids[i])):
             with open((DOCUMENTS_PATH + str(candidate_document_ids[i][j]) + '.json'), 
                         'r', encoding='utf-8', 
                             errors='ignore') as f:
                 document_content = json.load(f)
             
-            # print(len(candidate_document_ids[i]))
-            # print(plain_text_character_positions[i].__len__())
-            
             temp_k = []
             for k in range(len(plain_text_character_positions[j])):
                 begin_position = plain_text_character_positions[j][k][0]
                 end_position = plain_text_character_positions[j][k][-1]
-                begin_index = sentence_indexes[j][k][0]
-                end_index = sentence_indexes[j][k][1]
-                score = min_distance_matrix[j][k]
-                candidate = {
-                    "question_id": i + 1,
-                    "article_id": candidate_document_ids[i][j], 
-                    "candidate_no": k + 1, 
-                    # "sentence": document_content[begin_index:end_index], # uncomment this line for winner's output
-                    "answer_begin_position ": begin_position,
-                    "answer_end_position": end_position,
-                    "similarity_score": float(score)
-                }
-                # temp_k.append(candidate)
-                # pprint(candidate)
+                begin_index = sentences_index[j][k][0]
+                end_index = sentences_index[j][k][-1]
+                score = ordered_similarity[j][k]
+                try:
+                    candidate = {
+                        "question_id": i + 1,
+                        "article_id": candidate_document_ids[i][j], 
+                        "candidate_rank": len(plain_text_character_positions[j]) - k - 1,  
+                        "sentence": document_content[begin_index:end_index], 
+                        "answer_begin_position ": begin_position, 
+                        "answer_end_position": end_position, 
+                        "similarity_score": float(score)
+                    }
+                except IndexError:
+                    candidate = {
+                        "question_id": i + 1,
+                        "article_id": candidate_document_ids[i][j], 
+                        "candidate_rank": len(plain_text_character_positions[j]) - k - 1, 
+                        "sentence": document_content[begin_index:], 
+                        "answer_begin_position ": begin_position, 
+                        "answer_end_position": end_position, 
+                        "similarity_score": float(score)
+                    }
+                # print(candidate)
                 temp_k.append(candidate)
             temp_j.append(temp_k)
         candidate_answers.append(temp_j)
-        # print(candidate_answers)
-        # print('i', i)
-        # if((i+1) % int(questions_num * .1) == 0 or i == len(candidate_document_ids)):
- 
-        if((i+1) % int(questions_num * .1) == 0 or i == len(candidate_document_ids)):
-            with open('./results/candidate_answers_part' + str(part) + '.json', 'w', 
+        copy.append(temp_j)
+
+        if((i+1) % int(questions_num * .05) == 0 or i == len(candidate_document_ids)):
+            if(part > 9):
+                no = chr(65 + chr_pointer)
+                chr_pointer += 1
+                print(no)
+            else:
+                no = part
+                print(no)
+            out_path = './results/final/candidate_sentences/candidate_sentences_part' + str(no) + '.json'
+            with open(out_path, 'w', 
                         encoding='utf-8', errors='ignore') as f:
                 json.dump(candidate_answers, f, indent=4)
             candidate_answers = []
             part += 1
-    print('\n')
 
-# plot histogram of true answer from json output
-    # foreach nsc_answer_detail
-        # get answer token ranges
-        # locate answer index(token range)
-        # check if candidate answer sentence range is overlap with nsc answer token range
-    # plot histogram 
+    return copy

@@ -10,19 +10,19 @@ from usage import alarm , rreplace
 
 def findDocuments(start_idx=0, end_idx=0):
     # initial databased
+    q = open('./data/final/final_tokenized_question.json', mode='r', encoding="utf-8-sig") # change path
     start = time.time()
     dict = SqliteDict('./data/sqlite_db/doc_add_missing.sqlite', autocommit=True) # change path
     dict = dict['doc']
     end = time.time()
     print("Time to initial db", end - start)
     # initial data and test set
-    q = open('./data/new_sample_questions_tokenize.json', mode='r', encoding="utf-8-sig") # change path
     # q = open('./ThaiQACorpus-EvaluationDataset-tokenize.json', mode='r', encoding="utf-8-sig") # change path
     
-    data = json.load(q)
     # validate = json.load(open("./../new_sample_questions_answer.json", mode='r', encoding="utf-8-sig")) # change path
 
     doc = 0
+    data = json.load(q)
     data = data[start_idx:end_idx]
     print(data.__len__())
     save = 0

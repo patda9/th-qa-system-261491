@@ -30,7 +30,6 @@ def m_words_separate(m, arrays_of_tokens, overlapping_words=0, question_number=0
                     idx = (j-fill_length, arrays_of_tokens[i].__len__())
                     sentence = arrays_of_tokens[i][j-fill_length:j+m]
                     sentences_ranges.append(idx)
-                    break
             else:
                 if(j > 0):
                     idx = (temp_j - overlapping_words, (temp_j + m) - overlapping_words)
