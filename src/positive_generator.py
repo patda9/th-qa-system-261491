@@ -2,6 +2,14 @@ import json
 import os
 import re
 
+answers_detail = None
+with open('../new_sample_questions.json', encoding='utf-8-sig') as f:
+    answers_detail = (json.load(f))['data']
+
+article_ids = []
+for ans in answers_detail:
+    article_ids.append(ans['article_id'])
+
 def preprocess_document(document):
     preprocess_doc = []
     for tk in document:
@@ -11,7 +19,7 @@ def preprocess_document(document):
         preprocess_doc.append(preprocessed_tk)
     return preprocess_doc
 
-def track_answer(answers_detail, document):
+def track_answer(answer_detail, document):
     answer_masks = []
     tokens_range = []
 
@@ -22,8 +30,8 @@ def track_answer(answers_detail, document):
         end += len(tk)
         characters_index = range(start, end)
 
-        ans_begin = answers_detail[i]['answer_begin_position ']
-        ans_end = answers_detail[i]['answer_end_position']
+        ans_begin = answer_detail['answer_begin_position ']
+        ans_end = answer_detail['answer_end_position']
         if(ans_begin - 1 in characters_index or ans_end - 1 in characters_index):
             answer_masks.append(1)
         else:
@@ -36,18 +44,6 @@ def track_answer(answers_detail, document):
     
     return answer_masks, tokens_range
 
-answers_detail = None
-with open('../new_sample_questions.json', encoding='utf-8-sig') as f:
-    answers_detail = (json.load(f))['data']
-
-# data = None
-# with open('../665.json', encoding='utf-8-sig') as f:
-#     data = json.load(f)
-
-article_ids = []
-for ans in answers_detail:
-    article_ids.append(ans['article_id'])
-
 # tkned_th_wiki = os.listdir('../../tokenized-th-wiki')
 
 MAX_SENTENCE_LENGTH = 60
@@ -58,7 +54,7 @@ if __name__ == "__main__":
         with open('../../tokenized-th-wiki/%s.json' % (article_ids[i]), encoding='utf-8-sig') as f:
             current_doc = json.load(f)
 
-        answer_masks, tokens_range = track_answer(answers_detail, current_doc)
+        answer_masks, tokens_range = track_answer(answers_detail[i], current_doc)
         preprocessed_doc = preprocess_document(current_doc)
         
         answer_idx = []
