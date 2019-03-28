@@ -3,7 +3,7 @@ import numpy
 import os
 import re
 
-from positive_generator import answers_detail, article_ids, MAX_SENTENCE_LENGTH
+from positive_generator import answers_detail, article_ids, MAX_SENTENCE_LENGTH, TKNED_DOCS_PATH
 from positive_generator import preprocess_document, track_answer
 
 # negative 0
@@ -20,8 +20,8 @@ def generate_from_answer_doc(answer_detail, document):
         if(answer_masks[j]):
             answer_idx.append(j)
 
-    l_start_tk = answer_idx[0] - 10 # numpy.random.randint(10, 21)
-    r_start_tk = answer_idx[-1] + 10 # numpy.random.randint(10, 21)
+    l_start_tk = answer_idx[0] - numpy.random.randint(10, 21)
+    r_start_tk = answer_idx[-1] + numpy.random.randint(10, 21)
     l_step = 0
     r_step = 0
     
@@ -33,7 +33,7 @@ def generate_from_answer_doc(answer_detail, document):
     temp_r_index = []
 
     try:
-        while(l_start_tk + l_step > 0):
+        while(l_start_tk + l_step > -1):
             if(preprocessed_doc[l_start_tk + l_step] is ' ' or preprocessed_doc[l_start_tk + l_step] is ''):
                 pass
             else:
@@ -41,7 +41,15 @@ def generate_from_answer_doc(answer_detail, document):
                 temp_l_char_range.insert(0, tokens_range[l_start_tk + l_step])
                 temp_l_index.insert(0, l_start_tk + l_step)
             l_step -= 1
+        
+        r_compensate = 0
+        while(r_compensate > l_start_tk + l_step):
+            r_compensate -= 1
+        r_step += r_compensate
+    except IndexError:
+        print('l index error')
 
+    try:
         while(r_start_tk + r_step < len(preprocessed_doc)):
             if(preprocessed_doc[r_start_tk + r_step] is ' ' or preprocessed_doc[r_start_tk + r_step] is ''):
                 pass
@@ -51,15 +59,21 @@ def generate_from_answer_doc(answer_detail, document):
                 temp_r_index.append(r_start_tk + r_step)
             r_step += 1
 
-    except:
-        pass
+        l_compensate = len(preprocessed_doc)
+        while(l_compensate < r_start_tk + r_step):
+            l_compensate += 1
+        l_step += l_compensate
+    except IndexError:
+        print('r index error')
 
-    negative0_samples.append(temp_l_tk)
-    negative0_samples.append(temp_r_tk)
-    negative0_samples_char_range.append(temp_l_char_range)
-    negative0_samples_char_range.append(temp_r_char_range)
-    negative0_samples_index.append(temp_l_index)
-    negative0_samples_index.append(temp_r_index)
+    if(temp_l_tk):
+        negative0_samples.append(temp_l_tk)
+        negative0_samples_char_range.append(temp_l_char_range)
+        negative0_samples_index.append(temp_l_index)
+    if(temp_r_tk):
+        negative0_samples.append(temp_r_tk)
+        negative0_samples_char_range.append(temp_r_char_range)
+        negative0_samples_index.append(temp_r_index)
 
     return negative0_samples, negative0_samples_char_range, negative0_samples_index
 
@@ -78,7 +92,7 @@ def generate_from_another_doc(corpus_doc_ids, article_id):
             rand_doc_id = corpus_doc_ids[rand_index]
         
         document = None
-        with open('../../tokenized-th-wiki/%s.json' % (rand_doc_id), encoding='utf-8-sig') as f:
+        with open('%s%s.json' % (TKNED_DOCS_PATH, rand_doc_id), encoding='utf-8-sig') as f:
             document = json.load(f)
         preprocessed_doc = preprocess_document(document)
 
@@ -94,7 +108,7 @@ def generate_from_another_doc(corpus_doc_ids, article_id):
     return negative1_samples
 
 if __name__ == "__main__":
-    corpus_doc_ids = os.listdir('../../tokenized-th-wiki/')
+    corpus_doc_ids = os.listdir(TKNED_DOCS_PATH)
     for i in range(len(corpus_doc_ids)):
         temp = ''
         for c in corpus_doc_ids[i]:
@@ -104,7 +118,7 @@ if __name__ == "__main__":
 
     for i in range(len(article_ids)):
         current_doc = None
-        with open('../../tokenized-th-wiki/%s.json' % (article_ids[i]), encoding='utf-8-sig') as f:
+        with open('%s%s.json' % (TKNED_DOCS_PATH, article_ids[i]), encoding='utf-8-sig') as f:
             current_doc = json.load(f)
         negative0_samples, \
         negative0_samples_char_range, \
