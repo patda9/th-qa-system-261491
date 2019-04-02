@@ -1,4 +1,5 @@
 import json
+import numpy
 import os
 import re
 
@@ -28,11 +29,12 @@ def track_answer(answer_detail, document):
     start = 0
     for tk in document:
         end += len(tk)
-        characters_index = range(start, end)
+        characters_index = (start, end)
+        
 
         ans_begin = answer_detail['answer_begin_position ']
         ans_end = answer_detail['answer_end_position']
-        if(ans_begin - 1 in characters_index or ans_end - 1 in characters_index):
+        if(ans_begin - 1 in range(start, end) or ans_end - 1 in range(start, end)):
             answer_masks.append(1)
         else:
             answer_masks.append(0)
@@ -46,7 +48,7 @@ def track_answer(answer_detail, document):
 
 # tkned_th_wiki = os.listdir('../../tokenized-th-wiki')
 
-MAX_SENTENCE_LENGTH = 60
+MAX_SENTENCE_LENGTH = numpy.random.randint(60, 81)
 
 if __name__ == "__main__":
     current_doc = None
@@ -66,7 +68,7 @@ if __name__ == "__main__":
         positive_sample_ans_masks = []
         positive_sample_char_range = []
         positive_sample_index = []        
-        
+
         first_ans_tk = answer_idx[0]
         last_ans_tk = answer_idx[-1]
         l_count = 0
@@ -114,13 +116,40 @@ if __name__ == "__main__":
             except IndexError:
                 pass
 
+        # words_per_sample = numpy.random.randint(15, 31)
+        words_per_sample = 20
+        fixed_words_num = words_per_sample
+        start = positive_sample_index.index(first_ans_tk)
+        for j in range(words_per_sample):
+            try:
+                if(start - j > -1):
+                    sample = positive_sample[start - j:start + words_per_sample - j]
+                    sample_index = positive_sample_index[start - j:start + words_per_sample - j]
+                    sample_char_range = positive_sample_char_range[start - j:start + words_per_sample - j]
+                    mask = [0] * fixed_words_num
+                    mask[j] = 1
+                else:
+                    break
+            except IndexError:
+                pass
+
+            positive = {
+                'sample_answer_maks': mask, 
+                'sample_character_range': sample_char_range, 
+                'sample_index': sample_index, 
+                'sample_sentence': sample, 
+            }
+
+            print(positive)
+
         # for output testing
-        print(positive_sample)
-        print(positive_sample_char_range)
-        print(positive_sample_index)
-        print(positive_sample_ans_masks)
+        # print(positive_sample_char_range)
+        # print(positive_sample_index)
+        # print(positive_sample_ans_masks)
         # print(answer_masks)
         # print(tokens_range)
         # print(current_doc[151])
         # print(tokens_range.index([528, 529, 530, 531, 532, 533, 534, 535, 536]))
+
+
         exit()
