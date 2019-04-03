@@ -3,6 +3,8 @@ import numpy
 import os
 import re
 
+from pprint import pprint
+
 answers_detail = None
 with open('../new_sample_questions.json', encoding='utf-8-sig') as f:
     answers_detail = (json.load(f))['data']
@@ -47,8 +49,8 @@ def track_answer(answer_detail, document):
     return answer_masks, tokens_range
 
 # tkned_th_wiki = os.listdir('../../tokenized-th-wiki')
-
 MAX_SENTENCE_LENGTH = numpy.random.randint(60, 81)
+OUTPUT_PATH = './temp/'
 
 if __name__ == "__main__":
     current_doc = None
@@ -119,6 +121,7 @@ if __name__ == "__main__":
         # words_per_sample = numpy.random.randint(15, 31)
         words_per_sample = 20
         fixed_words_num = words_per_sample
+        positive_samples = []
         start = positive_sample_index.index(first_ans_tk)
         for j in range(words_per_sample):
             try:
@@ -134,13 +137,16 @@ if __name__ == "__main__":
                 pass
 
             positive = {
+                'article_id': article_ids[i], 
+                'question_id': i + 1, 
                 'sample_answer_maks': mask, 
                 'sample_character_range': sample_char_range, 
                 'sample_index': sample_index, 
                 'sample_sentence': sample, 
             }
 
-            print(positive)
+            positive_samples.append(positive)
+        pprint(positive_samples)
 
         # for output testing
         # print(positive_sample_char_range)
@@ -151,5 +157,9 @@ if __name__ == "__main__":
         # print(current_doc[151])
         # print(tokens_range.index([528, 529, 530, 531, 532, 533, 534, 535, 536]))
 
+        out_file_name = '%spositive_question%s.json' % (OUTPUT_PATH, i)
+        with open(out_file_name, 'w', encoding='utf-8-sig', errors='ignore') as f:
+            print(out_file_name)
+            json.dump(positive_samples, f, ensure_ascii=False)
 
         exit()
