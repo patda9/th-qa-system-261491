@@ -4,6 +4,8 @@ import os
 import re
 
 from pprint import pprint
+# MAX_SENTENCE_LENGTH = 60
+# TKNED_DOCS_PATH = 'D:/Users/Patdanai/th-qasys-db/tokenized_wiki_corpus/'
 
 answers_detail = None
 with open('./data/new_sample_questions.json', encoding='utf-8-sig') as f:
