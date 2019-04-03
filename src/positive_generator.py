@@ -6,7 +6,7 @@ import re
 from pprint import pprint
 
 answers_detail = None
-with open('../new_sample_questions.json', encoding='utf-8-sig') as f:
+with open('./data/new_sample_questions.json', encoding='utf-8-sig') as f:
     answers_detail = (json.load(f))['data']
 
 article_ids = []
@@ -49,13 +49,14 @@ def track_answer(answer_detail, document):
     return answer_masks, tokens_range
 
 # tkned_th_wiki = os.listdir('../../tokenized-th-wiki')
+TKNED_DOCS_PATH = '../../tokenized-th-wiki/'
 MAX_SENTENCE_LENGTH = numpy.random.randint(60, 81)
 OUTPUT_PATH = './temp/'
 
 if __name__ == "__main__":
     current_doc = None
     for i in range(len(article_ids)):
-        with open('../../tokenized-th-wiki/%s.json' % (article_ids[i]), encoding='utf-8-sig') as f:
+        with open('%s%s.json' % (TKNED_DOCS_PATH, article_ids[i]), encoding='utf-8-sig') as f:
             current_doc = json.load(f)
 
         answer_masks, tokens_range = track_answer(answers_detail[i], current_doc)
