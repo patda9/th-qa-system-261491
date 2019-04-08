@@ -30,9 +30,9 @@ def m_words_separate(m, arrays_of_tokens, overlapping_words=0, question_number=0
                         if(t is type(np.array([]))):
                             arrays_of_tokens[i].append(np.zeros(arrays_of_tokens[i][-1].shape))
                         else:
-                            arrays_of_tokens[i].append(arrays_of_tokens[i][-1])
+                            arrays_of_tokens[i].append('<PAD>')
 
-                    arrays_of_tokens[i] = np.asarray(arrays_of_tokens[i])
+                    # arrays_of_tokens[i] = np.asarray(arrays_of_tokens[i])
                     idx = (j, m)
                     sentence = arrays_of_tokens[i][j:m]
                     sentences_ranges.append(idx)
@@ -41,6 +41,7 @@ def m_words_separate(m, arrays_of_tokens, overlapping_words=0, question_number=0
                     idx = (j-fill_length, arrays_of_tokens[i].__len__())
                     sentence = arrays_of_tokens[i][j-fill_length:j+m]
                     sentences_ranges.append(idx)
+                    break
                 if(sentences):
                     if(sentences_ranges[-1] == sentences_ranges[-2] and len(sentences) == len(sentences_ranges)):
                         sentences.pop()
@@ -60,7 +61,7 @@ def m_words_separate(m, arrays_of_tokens, overlapping_words=0, question_number=0
         sentences_ranges_in_articles.append(sentences_ranges)
         # print('Batch: ' + str(question_number + 1) + ' Converting to ' + str(m) + '-words sentences. [' + str(i) + '/' + str(arrays_of_tokens.__len__()) + '] \r', end='')
         # print('\n')
-    return [np.asarray(sentences_in_articles), np.asarray(sentences_ranges_in_articles)]
+    return [sentences_in_articles, sentences_ranges_in_articles]
 
 # remove xml tag at the beginning
 def remove_xml(article):
