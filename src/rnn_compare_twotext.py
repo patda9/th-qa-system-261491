@@ -1,60 +1,109 @@
+# utils
 import json
 import matplotlib.pyplot as plt
+
+from sklearn.metrics import confusion_matrix
+
+# numerical libs
 import numpy as np
 
-from gensim.models import Word2Vec
+from gensim.models import Word2Vec # change to fasttext vectors
 from keras.callbacks import ModelCheckpoint
 from keras.layers import BatchNormalization, Concatenate, Dense, Dropout, \
-GRU, Input, LSTM, Masking, Multiply, Subtract
+    GRU, Input, LSTM, Masking, Multiply, Subtract
 from keras.models import load_model, Model, Sequential
-from sklearn.metrics import confusion_matrix
 
 rnn_size = 16
 sentence_length = 40
 word_vector_length = 100
 
-def sentenceVector(): # SV_BLOCK
+def get_positive_input(input_path):
+    return np.load(input_path)
+
+def get_negative0_input(input_path):
+    return np.load(input_path)
+
+def get_negative1_input(input_path):
+    return np.load(input_path)
+
+def generate_output(t, a, sample_size=None):
+    if(t == 1):
+        if(type(sample_size) == type(0)):
+            return np.ones((sample_size, 1), dtype=np.float)
+        return np.ones((a.shape[0], 1), dtype=np.float)
+    elif(t == 0):
+        if(type(sample_size) == type(0)):
+            return np.zeros((sample_size, 1), dtype=np.float)
+        return np.zeors((a.shape[0], 1), dtype=np.float)
+    else:
+        raise TypeError:
+            print('argument t: {0, 1}')
+
+def sentenceVector():  # SV_BLOCK
     submodel = Sequential()
-    submodel.add(Masking(mask_value=0., input_shape=(sentence_length, word_vector_length, )))
+    submodel.add(Masking(mask_value=0., input_shape=(
+        sentence_length, word_vector_length, )))
     submodel.add(GRU(rnn_size, activation='relu', name='sv_rnn1'))
     submodel.add(BatchNormalization())
     submodel.add(Dropout(0.4))
     return submodel
 
-def sentenceCompare(): # SC_BLOCK
+def sentenceCompare():  # SC_BLOCK
     candidate_sentence_sv = Input(shape=(rnn_size,))
     question_sv = Input(shape=(rnn_size,))
     concate = Concatenate()([candidate_sentence_sv, question_sv])
-    dense1 = Dense(16, activation='sigmoid',name='sc_dense1')(concate)
+    dense1 = Dense(16, activation='sigmoid', name='sc_dense1')(concate)
     batch_norm_sequences = BatchNormalization()(dense1)
-    dense2 = Dense(16, activation='sigmoid',name='sc_dense2')(dense1)
+    dense2 = Dense(16, activation='sigmoid', name='sc_dense2')(dense1)
     batch_norm_sequences = BatchNormalization()(dense2)
-    dissimilarity = Dense(1, activation='sigmoid',name='sc_dense3')(dense2)
-    submodel = Model(inputs=[candidate_sentence_sv, question_sv], outputs=dissimilarity)
+    dissimilarity = Dense(1, activation='sigmoid', name='sc_dense3')(dense2)
+    submodel = Model(inputs=[candidate_sentence_sv,
+                             question_sv], outputs=dissimilarity)
     return submodel
+
+def sequence_generator(files, t, batch_size=512):
+    # files => os.listdir
+    while(1):
+        batch_paths = np.random.choice(files, size=batch_size)
+        input_batch, output_batch = [], []
+
+        for input_path in batch_paths:
+            inp = get_input(input_path)
+            input_batch += [inp]
+
+        input_batch = np.array(input_batch)
+        output_batch = generate_output(t, input_batch)
+
+        yield (input_batch, output_batch)
 
 if __name__ == "__main__":
     # load dataset
-    x1_train = np.load('C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/x1_train.npy')
-    x2_train = np.load('C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/x2_train.npy')
-    y_train = np.load('C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/y2_train.npy')
+    x1_train = np.load(
+        'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/x1_train.npy')
+    x2_train = np.load(
+        'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/x2_train.npy')
+    y_train = np.load(
+        'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/y2_train.npy')
 
     print(x1_train.shape, x2_train.shape, y_train.shape, sep='\n')
+    exit()
 
     # create tensors
-    candidate_sentence_wv_seq = Input(shape=(sentence_length, word_vector_length,))
-    question_wv_seq = Input(shape=(sentence_length,word_vector_length,))
+    candidate_sentence_wv_seq = Input(
+        shape=(sentence_length, word_vector_length,))
+    question_wv_seq = Input(shape=(sentence_length, word_vector_length,))
 
     # form model
     sv = sentenceVector()
     candidate_sentence_sv = sv(candidate_sentence_wv_seq)
     question_sv = sv(question_wv_seq)
     dissimilarity = sentenceCompare()([candidate_sentence_sv, question_sv])
-    model = Model(inputs=[candidate_sentence_wv_seq, question_wv_seq], outputs=dissimilarity)
+    model = Model(inputs=[candidate_sentence_wv_seq,
+                          question_wv_seq], outputs=dissimilarity)
     print(model.summary())
     model.compile(optimizer='adam',
-                loss='binary_crossentropy',
-                metrics=['mae','accuracy'])
+                  loss='binary_crossentropy',
+                  metrics=['mae', 'accuracy'])
 
     # or load model
     model = load_model('compare_model_v3.h5')
@@ -64,10 +113,12 @@ if __name__ == "__main__":
     temp = np.zeros(x1_train.shape)
     temp[:] = 0.
     x1_train = np.concatenate((temp, x1_train), axis=1)
-    temp = np.zeros((x2_train.shape[0], sentence_length - x2_train.shape[1], word_vector_length))
+    temp = np.zeros(
+        (x2_train.shape[0], sentence_length - x2_train.shape[1], word_vector_length))
     temp[:] = 0.
     x2_train = np.concatenate((temp, x2_train), axis=1)
-    print('y:', y_train.shape, 'x1:', np.array(x1_train).shape, 'x2:', np.array(x2_train).shape)
+    print('y:', y_train.shape, 'x1:', np.array(
+        x1_train).shape, 'x2:', np.array(x2_train).shape)
 
     # shuffle x1, x2, y with same order
     # np.random.seed(5)
