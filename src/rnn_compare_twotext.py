@@ -1,6 +1,7 @@
 # utils
 import json
 import matplotlib.pyplot as plt
+import os
 
 from sklearn.metrics import confusion_matrix
 
@@ -17,13 +18,7 @@ rnn_size = 16
 sentence_length = 40
 word_vector_length = 100
 
-def get_positive_input(input_path):
-    return np.load(input_path)
-
-def get_negative0_input(input_path):
-    return np.load(input_path)
-
-def get_negative1_input(input_path):
+def get_input(input_path):
     return np.load(input_path)
 
 def generate_output(t, a, sample_size=None):
@@ -36,8 +31,7 @@ def generate_output(t, a, sample_size=None):
             return np.zeros((sample_size, 1), dtype=np.float)
         return np.zeors((a.shape[0], 1), dtype=np.float)
     else:
-        raise TypeError:
-            print('argument t: {0, 1}')
+        print('argument t: {0, 1}')
 
 def sentenceVector():  # SV_BLOCK
     submodel = Sequential()
@@ -61,31 +55,69 @@ def sentenceCompare():  # SC_BLOCK
                              question_sv], outputs=dissimilarity)
     return submodel
 
-def sequence_generator(files, t, batch_size=512):
+def sequence_generator(files, label_path, batch_size=512):
     # files => os.listdir
+    if(label_path):
+        positive_dataset_path = label_path[0]
+        negative0_dataset_path = label_path[1]
+        negative1_dataset_path = label_path[2]
+    
     while(1):
         batch_paths = np.random.choice(files, size=batch_size)
-        input_batch, output_batch = [], []
+        input_batch = np.empty((0, 20, 300))
+        output_batch = np.empty((0, 1))
 
+        inp = None
         for input_path in batch_paths:
-            inp = get_input(input_path)
-            input_batch += [inp]
+            if('positive' in input_path):
+                inp = get_input(positive_dataset_path + input_path)
+                out = np.ones((inp.shape[0], 1))
+            elif('negative0' in input_path):
+                inp = get_input(negative0_dataset_path + input_path)
+                out = np.zeros((inp.shape[0], 1))
+            elif('negative1' in input_path):
+                inp = get_input(negative1_dataset_path + input_path)
+                out = np.zeros((inp.shape[0], 1))
+
+            input_batch = np.concatenate((input_batch, inp), axis=0)
+            output_batch = np.concatenate((output_batch, out), axis=0)
 
         input_batch = np.array(input_batch)
-        output_batch = generate_output(t, input_batch)
+        output_batch = np.array(output_batch)
 
         yield (input_batch, output_batch)
 
 if __name__ == "__main__":
-    # load dataset
-    x1_train = np.load(
-        'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/x1_train.npy')
-    x2_train = np.load(
-        'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/x2_train.npy')
-    y_train = np.load(
-        'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/y2_train.npy')
+    positive_dataset_path = 'D:/Users/Patdanai/th-qasys-db/positive_embedded/'
+    positive_dataset = os.listdir(positive_dataset_path)
 
-    print(x1_train.shape, x2_train.shape, y_train.shape, sep='\n')
+    negative0_dataset_path = 'D:/Users/Patdanai/th-qasys-db/negative_embedded/negative0/'
+    negative0_dataset = os.listdir(negative0_dataset_path)
+
+    negative1_dataset_path = 'D:/Users/Patdanai/th-qasys-db/negative_embedded/negative1/'
+    negative1_dataset = os.listdir(negative1_dataset_path)
+
+    label_path = []
+    label_path.append(positive_dataset_path)
+    label_path.append(negative0_dataset_path)
+    label_path.append(negative1_dataset_path)
+
+    dataset = []
+    dataset += positive_dataset
+    dataset += negative0_dataset
+    dataset += negative1_dataset
+
+    temp = sequence_generator(dataset, label_path)
+    
+    # load dataset
+    # x1_train = np.load(
+    #     'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/x1_train.npy')
+    # x2_train = np.load(
+    #     'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/x2_train.npy')
+    # y_train = np.load(
+    #     'C:/Users/Patdanai/Workspace/th-qa-system-261491/data/train_set/y2_train.npy')
+
+    # print(x1_train.shape, x2_train.shape, y_train.shape, sep='\n')
     exit()
 
     # create tensors
@@ -95,7 +127,7 @@ if __name__ == "__main__":
 
     # form model
     sv = sentenceVector()
-    candidate_sentence_sv = sv(candidate_sentence_wv_seq)
+    candidate_sentence_sv = sv(candidate_sentence_wv_seq) # same weight as qusetion_sv (sv reference to same sentenceVector() object)
     question_sv = sv(question_wv_seq)
     dissimilarity = sentenceCompare()([candidate_sentence_sv, question_sv])
     model = Model(inputs=[candidate_sentence_wv_seq,
