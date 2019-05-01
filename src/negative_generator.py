@@ -5,9 +5,9 @@ import re
 
 from preprocessing import m_words_separate
 from positive_generator import answers_detail, article_ids, MAX_SENTENCE_LENGTH
-from positive_generator import fasttext_conversion, preprocess_document, track_answer
+from positive_generator import preprocess_document, track_answer
 
-# 821
+np.random.seed(0)
 
 def get_vocab_wvs(wv_path, preprocessed_doc=None, vocabs=None):
     fasttext_fp = open(wv_path, encoding='utf-8-sig')
@@ -68,8 +68,6 @@ def generate_from_answer_doc(answer_detail, document):
     except:
         pass
 
-    print(preprocessed_doc)
-
     l_step = 0
     r_step = 0
 
@@ -85,7 +83,6 @@ def generate_from_answer_doc(answer_detail, document):
             l_start_tk = answer_idx[0] // 2
         
         while(l_start_tk + l_step > -1):
-            print(l_start_tk, l_step)
             if(preprocessed_doc[l_start_tk + l_step] is ' ' or preprocessed_doc[l_start_tk + l_step] is ''):
                 pass
             else:
@@ -93,8 +90,6 @@ def generate_from_answer_doc(answer_detail, document):
                 temp_l_char_range.insert(0, tokens_range[l_start_tk + l_step])
                 temp_l_index.insert(0, l_start_tk + l_step)
             l_step -= 1
-            print(l_step)
-
         
         r_compensate = 0
         while(r_compensate > l_start_tk + l_step):
@@ -102,14 +97,12 @@ def generate_from_answer_doc(answer_detail, document):
         r_step += r_compensate
     
     except IndexError:
-        print('l index error')
         l_step = len(preprocessed_doc) // 2
         while(l_start_tk > -1):
             if(preprocessed_doc[l_step] is ' ' or preprocessed_doc[l_step] is ''):
                 pass
             else:
                 temp_l_tk.insert(0, preprocessed_doc[l_step])
-                print(temp_l_tk)
                 temp_l_char_range.insert(0, tokens_range[l_step])
                 temp_l_index.insert(0, l_step)
             if(l_step > 0):
@@ -136,9 +129,7 @@ def generate_from_answer_doc(answer_detail, document):
             l_compensate += 1
         l_step += l_compensate
     except IndexError:
-        print('r index error')
         r_start_tk = len(preprocessed_doc) // 2 + 1
-        print(r_start_tk)
 
         while(r_start_tk + r_step < len(preprocessed_doc)):
             if(preprocessed_doc[r_start_tk + r_step] is ' ' or preprocessed_doc[r_start_tk + r_step] is ''):
@@ -150,6 +141,16 @@ def generate_from_answer_doc(answer_detail, document):
                 temp_r_index.append(r_start_tk + r_step)
             r_step += 1
 
+    if(l_step + r_step > len(preprocessed_doc) - 1):
+        while(len(temp_l_tk) < words_per_sample):
+            temp_l_tk.insert(0, '<PAD>')
+            temp_l_char_range.insert(0, (-1, -1))
+            temp_l_index.insert(0, -1)
+        while(len(temp_r_tk) < words_per_sample):
+            temp_r_tk.insert(0, '<PAD>')
+            temp_r_char_range.insert(0, (-1, -1))
+            temp_r_index.insert(0, -1)
+
     if(temp_l_tk):
         negative0_samples.append(temp_l_tk)
         negative0_samples_char_range.append(temp_l_char_range)
@@ -158,22 +159,12 @@ def generate_from_answer_doc(answer_detail, document):
         negative0_samples.append(temp_r_tk)
         negative0_samples_char_range.append(temp_r_char_range)
         negative0_samples_index.append(temp_r_index)
-    
-    if(l_step + r_step > len(preprocessed_doc) - 1):
-        while(len(temp_l_tk) < words_per_sample):
-            temp_l_tk.insert(0, '<PAD>')
-        while(len(temp_r_tk) < words_per_sample):
-            temp_r_tk.insert(0, '<PAD>')
-        return negative0_samples, negative0_samples_char_range, negative0_samples_index
-
-    print(negative0_samples, negative0_samples_char_range, negative0_samples_index)
 
     return negative0_samples, negative0_samples_char_range, negative0_samples_index
 
 # negative 1
 def generate_from_another_doc(corpus_doc_ids, article_id):
     answer_doc_id = article_id
-    # samples_num = np.random.randint(2, 4)
     samples_num = 32
 
     counter = 0
@@ -214,7 +205,7 @@ OUTPUT_PATH1_NPY = 'C:/Users/Patdanai/Desktop/492/negative1/embedded/'
 
 # TKNED_DOCS_PATH = 'D:/Users/Patdanai/th-qasys-db/tokenized_wiki_corpus/'
 TKNED_DOCS_PATH = 'C:/Users/Patdanai/Desktop/tokenized-th-wiki/'
-words_per_sample = 20
+words_per_sample = 40
 wv_path = 'C:/Users/Patdanai/Desktop/261499-nlp/lab/cc.th.300.vec'
 if __name__ == "__main__":
     corpus_doc_ids = os.listdir(TKNED_DOCS_PATH)
@@ -225,26 +216,39 @@ if __name__ == "__main__":
                 temp += c
         corpus_doc_ids[i] = temp
 
-    negative0 = []
-    for i in range(1844, len(article_ids)):
+    batch_size = 4000 # default: len(article_ids)
+    start = 0 # index
+
+    batch_vocabs = []
+    for i in range(start, batch_size + start):
+        with open('%s%s.json' % (TKNED_DOCS_PATH, article_ids[i]), encoding='utf-8-sig') as f:
+            current_doc = json.load(f)
+
+        preprocessed_doc = preprocess_document(current_doc)
+        batch_vocabs += preprocessed_doc
+
+    batch_vocabs = set(batch_vocabs)
+    batch_vocabs.remove('')
+
+    vocab_wvs = get_vocab_wvs(wv_path, vocabs=batch_vocabs)
+
+    for i in range(start, batch_size + start):
         current_doc = None
         with open('%s%s.json' % (TKNED_DOCS_PATH, article_ids[i]), encoding='utf-8-sig') as f:
             current_doc = json.load(f)
         preprocessed_doc = preprocess_document(current_doc)
         current_doc = preprocessed_doc
-        vocab_wvs = get_vocab_wvs(wv_path, preprocessed_doc=preprocessed_doc)
 
         negative0_samples, \
         negative0_samples_char_range, \
         negative0_samples_index = generate_from_answer_doc(answers_detail[i], current_doc)
-        print(negative0_samples)
         negative0_samples = list(m_words_separate(words_per_sample, negative0_samples, overlapping_words=15)[0])[0]
         negative0_samples_char_range = list(m_words_separate(words_per_sample, negative0_samples_char_range, overlapping_words=15)[0])
         negative0_samples_char_range = [list(s) for sentences in negative0_samples_char_range for s in sentences]
         negative0_samples_index = list(m_words_separate(words_per_sample, negative0_samples_index, overlapping_words=15)[0])
         negative0_samples_index = [list(s) for sentences in negative0_samples_index for s in sentences]
 
-        n0_sampling_num = int(.75 * len(negative0_samples))
+        n0_sampling_num = 10
         if(n0_sampling_num < 1):
             n0_sampling_num += 1
         negative0_samples = np.random.permutation(negative0_samples)[:n0_sampling_num]
@@ -257,23 +261,25 @@ if __name__ == "__main__":
                 'samples_char_range': list(negative0_samples_char_range), 
                 'samples_index': list(negative0_samples_index)
         }
-        print(negative)
-
-        wvl = 300
+        
         embedded_sentences = []
         for j in range(len(negative0_samples)):
-            es = vectorize_tokens(negative0_samples[j], vocab_wvs)
+            es = vectorize_tokens(negative0_samples[j], vocab_wvs=vocab_wvs)
             embedded_sentences.append(es)
-        print(i, 'negative0:', np.array(embedded_sentences).shape)
-        print()
-        print()
-    
+        
         out_file_name0 = '%snegative0_question%s.json' % (OUTPUT_PATH0, i)
         out_file_name0_npy = '%snegative0_question%s.npy' % (OUTPUT_PATH0_NPY, i)
         with open(out_file_name0, 'w', encoding='utf-8-sig', errors='ignore') as f:
             json.dump(negative, f, ensure_ascii=False)
-        np.save(out_file_name0_npy, np.asarray(embedded_sentences))
+        np.save(out_file_name0_npy, np.array(embedded_sentences))
+        
+        print(i, 'negative0:', np.array(embedded_sentences).shape)
 
+    batch_size = 10 # default: len(article_ids)
+    start = 0 # index
+
+    negative1_batch, doc_id_batch = [], []
+    for i in range(start, batch_size + start):
         negative1_samples, rand_doc_ids = generate_from_another_doc(corpus_doc_ids, article_ids[i])
         negative1_samples = list(m_words_separate(words_per_sample, negative1_samples, overlapping_words=15)[0])
 
@@ -287,6 +293,9 @@ if __name__ == "__main__":
                 pass
 
         negative1_samples = n1s
+        
+        negative1_batch.append(negative1_samples)
+        doc_id_batch += rand_doc_ids
 
         negative = {
                 'article_ids': rand_doc_ids, 
@@ -294,19 +303,33 @@ if __name__ == "__main__":
                 'samples': negative1_samples, 
         }
 
-        vocabs = set([tk for s in negative1_samples for tk in s])
-        vocab_wvs = get_vocab_wvs(wv_path, vocabs=vocabs)
-
-        embedded_sentences = []
-        for j in range(len(negative1_samples)):
-            es = vectorize_tokens(negative1_samples[j], vocab_wvs)
-            embedded_sentences.append(es)
-        print(i, 'negative1:', np.array(embedded_sentences).shape)
-        print()
-        print()
-
         out_file_name1 = '%snegative1_question%s.json' % (OUTPUT_PATH1, i)
-        out_file_name1_npy = '%snegative1_question%s.npy' % (OUTPUT_PATH1_NPY, i)
         with open(out_file_name1, 'w', encoding='utf-8-sig', errors='ignore') as f:
             json.dump(negative, f, ensure_ascii=False)
+
+    doc_id_batch = list(set(doc_id_batch))
+
+    batch_vocabs = []
+    for i in range(start, batch_size + start):
+        with open('%s%s.json' % (TKNED_DOCS_PATH, doc_id_batch[i]), encoding='utf-8-sig') as f:
+            current_doc = json.load(f)
+
+        preprocessed_doc = preprocess_document(current_doc)
+        batch_vocabs += preprocessed_doc
+
+    batch_vocabs = set(batch_vocabs)
+    batch_vocabs.remove('')
+    
+    vocab_wvs = get_vocab_wvs(wv_path, vocabs=batch_vocabs)
+    
+    es_batch = []
+    for i in range(len(negative1_batch)):
+        embedded_sentences = []
+        for j in range(len(negative1_batch[i])):
+            es = vectorize_tokens(negative1_samples[i], vocab_wvs)
+            embedded_sentences.append(es)
+        es_batch.append(es)
+        
+        out_file_name1_npy = '%snegative1_question%s.npy' % (OUTPUT_PATH1_NPY, i)
         np.save(out_file_name1_npy, np.asarray(embedded_sentences))
+        print(i, 'negative1:', np.array(embedded_sentences).shape)
