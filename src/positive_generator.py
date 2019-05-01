@@ -1,5 +1,5 @@
 import json
-import numpy
+import numpy as np
 import os
 import re
 
@@ -13,59 +13,48 @@ article_ids = []
 for ans in answers_detail:
     article_ids.append(ans['article_id'])
 
-def fasttext_conversion(preprocessed_doc=None, vocab_vectors={}, enough_mem=False, limit=1000000):
-    # fasttext_vec_file = open('C:/Users/Patdanai/Workspace/nlp-lab-27-2-2019/fastText/cc.th.300.vec', 'r', encoding='utf-8-sig')
-    fasttext_vec_file = open('C:/Users/Patdanai/Downloads/wiki.th.vec', 'r', encoding='utf-8-sig')
-    if(enough_mem):
-        count = 0
-        for line in fasttext_vec_file:
-            if(count < 1):
-                count = count + 1
-                continue
-            if(count < limit):
-                line = line.split()
-                vocab_vectors[line[0]] = line[1:]
+def get_vocab_wvs(wv_path, preprocessed_doc=None, vocabs=None):
+    fasttext_fp = open(wv_path, encoding='utf-8-sig')
+    white_spaces = ['', ' ']
+    
+    if(not(vocabs) and preprocessed_doc):
+        vocabs = set([tk for tk in preprocessed_doc if tk not in white_spaces])
+
+    vocab_wvs = {}
+
+    line_count = 0
+    vocab_count = 0
+    for line in fasttext_fp:
+        if(line_count > 0):
+            line = line.split()
+            if(vocab_count < len(vocabs)):
+                if(line[0] in vocabs):
+                    vocab_wvs[line[0]] = line[1:]
+                    print('found %s %s total_len: %s' % (line_count, line[0], len(vocabs)))
+                    vocab_count += 1
+                    print(vocab_count)
             else:
                 break
-            count = count + 1
-    else:
-        temp = []
-        i = 0
-        while(i < len(preprocessed_doc)):
-            try:
-                if(preprocessed_doc[i] == ' ' or preprocessed_doc[i] == ';' or preprocessed_doc[i] == ''):
-                    pass
-                elif(preprocessed_doc[i].isdigit and preprocessed_doc[i+1] == '.' and preprocessed_doc[i+2].isdigit):
-                    temp.append(preprocessed_doc[i] + preprocessed_doc[i+1] + preprocessed_doc[i+2])
-                    i += 2
-                else:
-                    temp.append(preprocessed_doc[i])
-            except:
-                pass
-            i += 1
-
-        vocabs = set([w for w in temp])
-
-        count = 0
-        for line in fasttext_vec_file:
-            if count > 0:
-                line = line.split()
-                if(line[0] in vocabs):
-                    vocab_vectors[line[0]] = line[1:]
-                elif(line[0] in vocab_vectors):
-                    pass
-            count = count + 1
-        print('vocabs_num: %s' % len(vocab_vectors))
-
-    return vocab_vectors
+        line_count += 1
+    
+    return vocab_wvs
 
 def preprocess_document(document):
     preprocess_doc = []
     for tk in document:
-        pattern = re.compile(r"[<.*?>\"\'\n=!:“”&]|doc id=\"|url=|https://th|^wikipedia.org/(.*)|/doc")
-        preprocessed_tk = re.sub(pattern, '', tk)
-        preprocessed_tk = ''.join(c for c in preprocessed_tk if not(c in ['(', ')', '–', '_', ',', '-', ';', '{', '}']))
+        sp_url_pattern = re.compile(r"[\"#$%&\'()*+,-/:;<=>?@[\\\]^_`{\|}~“”!]|doc id=\"|url=|^https:(.*)|^wikipedia.org(.*)|\\u(.*)")
+        doc_pattern = re.compile(r"doc(.|[\n]*)")
+        acronym_pattern = re.compile(r"(([a-zA-Z\u0e00-\u0ef70-9]+[.])*[a-zA-Z\u0e00-\u0ef70-9]*)") # พ.ศ. ดร.
+
+        if(re.fullmatch(acronym_pattern, tk)):
+            preprocessed_tk = tk
+        else:
+            preprocessed_tk = re.sub(sp_url_pattern, '', tk)
+            preprocessed_tk = re.sub(doc_pattern, '', preprocessed_tk)
+
+        preprocessed_tk = ''.join(c for c in preprocessed_tk if not(c in ['(', ')', '–', '_', ',', '-', ';', '{', '}', ' ']))
         preprocess_doc.append(preprocessed_tk)
+
     return preprocess_doc
 
 def track_answer(answer_detail, document):
@@ -93,25 +82,45 @@ def track_answer(answer_detail, document):
     
     return answer_masks, tokens_range
 
-# tkned_th_wiki = os.listdir('../../tokenized-th-wiki')
+def vectorize_tokens(sentence, vocab_wvs=None, wvl=300):
+    word_vectors = np.zeros((len(sentence), wvl))
+    for i in range(len(sentence)):
+        try:
+            if(sentence[i] != '<PAD>'):
+                word_vectors[i, :] = vocab_wvs[sentence[i]]
+        except:
+            pass
+
+    return word_vectors
+
 TKNED_DOCS_PATH = 'D:/Users/Patdanai/th-qasys-db/tokenized_wiki_corpus/'
-MAX_SENTENCE_LENGTH = numpy.random.randint(60, 81)
+TKNED_DOCS_PATH = 'C:/Users/Patdanai/Desktop/tokenized-th-wiki/'
+MAX_SENTENCE_LENGTH = 80
 OUTPUT_PATH = 'D:/Users/Patdanai/th-qasys-db/positive_sentences/'
-OUTPUT_PATH_NPY = 'D:/Users/Patdanai/th-qasys-db/positive_embedded/'
+OUTPUT_PATH = 'C:/Users/Patdanai/Desktop/492/positive/tokenized/'
+# OUTPUT_PATH_NPY = 'D:/Users/Patdanai/th-qasys-db/positive_embedded/'
+OUTPUT_PATH_NPY = 'C:/Users/Patdanai/Desktop/492/positive'
 
-from time import time
-
+wv_path = 'C:/Users/Patdanai/Desktop/261499-nlp/lab/cc.th.300.vec'
 if __name__ == "__main__":
-    start = time()
-    # 485
-    current_doc = None
-    vocab_vectors = fasttext_conversion(enough_mem=True)
-    end = time()
-    et = end - start
-    print(len(vocab_vectors))
-    print('wvs loaded: %s seconds.' % et)
+    # put wvs to memory
+    batch_size = 4000
+    start = 0
 
-    for i in range(0, len(article_ids)):
+    batch_vocabs = []
+    for i in range(start, batch_size + start):
+        with open('%s%s.json' % (TKNED_DOCS_PATH, article_ids[i]), encoding='utf-8-sig') as f:
+            current_doc = json.load(f)
+
+        preprocessed_doc = preprocess_document(current_doc)
+        batch_vocabs += preprocessed_doc
+
+    batch_vocabs.remove('')
+    batch_vocabs = set(batch_vocabs)
+
+    vocab_wvs = get_vocab_wvs(wv_path, vocabs=batch_vocabs)
+
+    for i in range(start, batch_size + start):
         with open('%s%s.json' % (TKNED_DOCS_PATH, article_ids[i]), encoding='utf-8-sig') as f:
             current_doc = json.load(f)
 
@@ -129,7 +138,13 @@ if __name__ == "__main__":
         positive_sample_index = []        
 
         first_ans_tk = answer_idx[0]
+        if(preprocessed_doc[first_ans_tk] in ['', ' ']):
+            first_ans_tk = last_ans_tk
+        
         last_ans_tk = answer_idx[-1]
+        if(preprocessed_doc[last_ans_tk] in ['', ' ']):
+            last_ans_tk = first_ans_tk
+
         l_count = 0
         r_count = 0
         l_step = 0
@@ -142,28 +157,28 @@ if __name__ == "__main__":
                 l_token_range = tokens_range[first_ans_tk + l_step]
 
                 if(first_ans_tk + l_step < 0):
-                    l_step -= 1
-                elif(l_token is '' or l_token is ' '):
+                    l_step = 0
+                elif(l_token in ['', ' ']):
                     l_step -= 1
                 else:
                     positive_sample.insert(0, l_token)
                     positive_sample_ans_masks.insert(0, l_token_mask)
                     positive_sample_char_range.insert(0, l_token_range)
                     positive_sample_index.insert(0, l_token_index)
-
                     l_count += 1
                     l_step -= 1
+
             except IndexError:
-                positive_sample.insert(0, '<PAD>')
                 l_count += 1
-            
+
             try:
                 r_token = preprocessed_doc[last_ans_tk + r_step]
                 r_token_index = last_ans_tk + r_step
                 r_token_mask = answer_masks[last_ans_tk + r_step]
                 r_token_range = tokens_range[last_ans_tk + r_step]
-
-                if(r_token is '' or r_token is ' '):
+                if(last_ans_tk + r_step > len(preprocessed_doc) - 1):
+                    pass
+                elif(r_token in ['', ' ']):
                     r_step += 1
                 else:
                     positive_sample.append(r_token)
@@ -175,25 +190,80 @@ if __name__ == "__main__":
                     r_step += 1
             except IndexError:
                 l_step += len(preprocessed_doc) - last_ans_tk - r_step
-                r_step = len(preprocessed_doc) - last_ans_tk - r_step
-
-        words_per_sample = 20
-        fixed_words_num = words_per_sample
+                r_step += 1
+        
+        words_per_sample = 40
+        sample_num = 10
         embedded_sentences = []
         positive_samples = []
-        start = positive_sample_index.index(first_ans_tk)
-        for j in range(words_per_sample):
+        start = positive_sample_index.index(first_ans_tk) - words_per_sample // 2 - sample_num // 2
+        for j in range(0, sample_num, 2):
             try:
-                if(start - j > -1):
+                if(start - j > -1 and start + words_per_sample - j < len(positive_sample) - 1):
                     sample = positive_sample[start - j:start + words_per_sample - j]
                     sample_index = positive_sample_index[start - j:start + words_per_sample - j]
                     sample_char_range = positive_sample_char_range[start - j:start + words_per_sample - j]
-                    mask = [0] * fixed_words_num
-                    mask[j] = 1
+                    mask = [0] * words_per_sample
+
+                    if(last_ans_tk - first_ans_tk > 0):
+                        for k in range(positive_sample_index.index(first_ans_tk) - start + j, positive_sample_index.index(last_ans_tk) - start + j):
+                            mask[k] = 1
+                    else:
+                        mask[positive_sample_index.index(first_ans_tk) - start + j] = 1
                 else:
-                    break
+                    sample = positive_sample[:]
+                    sample_index = positive_sample_index[:]
+                    sample_char_range = positive_sample_char_range[:]
+                    mask = [0] * len(positive_sample_index)
+
+                    if(len(sample) > words_per_sample):
+                        if(last_ans_tk - first_ans_tk > 0):
+                            for k in range(positive_sample_index.index(first_ans_tk), positive_sample_index.index(last_ans_tk)):
+                                mask[k] = 1
+                        else:
+                            mask[positive_sample_index.index(first_ans_tk)] = 1
+
+                        l_removal, r_removal = 0, len(sample)
+                        while(len(sample) > words_per_sample):
+                            try:
+                                temp_first = positive_sample_index.index(first_ans_tk)
+                                temp_last = positive_sample_index.index(last_ans_tk)
+                            except:
+                                temp_last = temp_first
+                            
+                            if(l_removal - 1 < r_removal - temp_last):
+                                sample.pop()
+                                sample_index.pop()
+                                sample_char_range.pop()
+                                mask.pop()
+                                r_removal -= 1
+                            elif(r_removal < l_removal - 1):
+                                sample.pop(0)
+                                sample_index.pop(0)
+                                sample_char_range.pop(0)
+                                mask.pop(0)
+                                l_removal += 1
+                            elif(r_removal - temp_last > 0):
+                                sample.pop()
+                                sample_index.pop()
+                                sample_char_range.pop()
+                                mask.pop()
+                                r_removal -= 1
+                            else:
+                                sample.pop(0)
+                                sample_index.pop(0)
+                                sample_char_range.pop(0)
+                                mask.pop(0)
+                                l_removal += 1
+                    else:
+                        sample_ans_mask = positive_sample_ans_masks[:]
+                        while(len(sample) < words_per_sample):
+                            sample.insert(0, '<PAD>')
+                            sample_ans_mask.insert(0, 0)
+                            sample_char_range.insert(0, (-1, -1))
+                            sample_index.insert(0, -1)
             except IndexError:
-                print('here1')
+                exit('Index Error: from line 276')
 
             positive = {
                 'article_id': article_ids[i], 
@@ -204,23 +274,16 @@ if __name__ == "__main__":
                 'sample_sentence': sample, 
             }
             positive_samples.append(positive)
-        
-            wvl = 300
-            embedded_sentences
-            word_vectors = numpy.zeros((len(sample), wvl))
-            for k in range(len(sample)):
-                try:
-                    word_vectors[k, :] = vocab_vectors[sample[k]]
-                except:
-                    word_vectors[k, :] = word_vectors[k] 
-                embedded_sentence = word_vectors
-            embedded_sentences.append(embedded_sentence)
+
+            es = vectorize_tokens(sample, vocab_wvs=vocab_wvs)
+            embedded_sentences.append(es)
 
         out_file_name = '%spositive_question%s.json' % (OUTPUT_PATH, i)
         out_file_name_npy = '%spositive_question%s.npy' % (OUTPUT_PATH_NPY, i)
 
-        with open(out_file_name, 'w', encoding='utf-8-sig', errors='ignore') as f:
-            json.dump(positive_samples, f, ensure_ascii=False)
+        # with open(out_file_name, 'w', encoding='utf-8-sig', errors='ignore') as f:
+        #     json.dump(positive_samples, f, ensure_ascii=False)
 
-        numpy.save(out_file_name_npy, numpy.asarray(embedded_sentences))
-        print(i, 'positive:', numpy.array(embedded_sentences).shape)
+        np.save(out_file_name_npy, np.asarray(embedded_sentences))
+        print(i, 'positive:', np.array(embedded_sentences).shape)
+        print()
