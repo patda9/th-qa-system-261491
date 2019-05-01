@@ -98,8 +98,8 @@ TKNED_DOCS_PATH = 'C:/Users/Patdanai/Desktop/tokenized-th-wiki/'
 MAX_SENTENCE_LENGTH = 80
 OUTPUT_PATH = 'D:/Users/Patdanai/th-qasys-db/positive_sentences/'
 OUTPUT_PATH = 'C:/Users/Patdanai/Desktop/492/positive/tokenized/'
-# OUTPUT_PATH_NPY = 'D:/Users/Patdanai/th-qasys-db/positive_embedded/'
-OUTPUT_PATH_NPY = 'C:/Users/Patdanai/Desktop/492/positive'
+OUTPUT_PATH_NPY = 'D:/Users/Patdanai/th-qasys-db/positive_embedded/'
+OUTPUT_PATH_NPY = 'C:/Users/Patdanai/Desktop/492/positive/embedded/'
 
 wv_path = 'C:/Users/Patdanai/Desktop/261499-nlp/lab/cc.th.300.vec'
 if __name__ == "__main__":
@@ -196,20 +196,20 @@ if __name__ == "__main__":
         sample_num = 10
         embedded_sentences = []
         positive_samples = []
-        start = positive_sample_index.index(first_ans_tk) - words_per_sample // 2 - sample_num // 2
+        start_idx = positive_sample_index.index(first_ans_tk) - words_per_sample // 2 - sample_num // 2
         for j in range(0, sample_num, 2):
             try:
-                if(start - j > -1 and start + words_per_sample - j < len(positive_sample) - 1):
-                    sample = positive_sample[start - j:start + words_per_sample - j]
-                    sample_index = positive_sample_index[start - j:start + words_per_sample - j]
-                    sample_char_range = positive_sample_char_range[start - j:start + words_per_sample - j]
+                if(start_idx - j > -1 and start_idx + words_per_sample - j < len(positive_sample) - 1):
+                    sample = positive_sample[start_idx - j:start_idx + words_per_sample - j]
+                    sample_index = positive_sample_index[start_idx - j:start_idx + words_per_sample - j]
+                    sample_char_range = positive_sample_char_range[start_idx - j:start_idx + words_per_sample - j]
                     mask = [0] * words_per_sample
 
                     if(last_ans_tk - first_ans_tk > 0):
-                        for k in range(positive_sample_index.index(first_ans_tk) - start + j, positive_sample_index.index(last_ans_tk) - start + j):
+                        for k in range(positive_sample_index.index(first_ans_tk) - start_idx + j, positive_sample_index.index(last_ans_tk) - start_idx + j):
                             mask[k] = 1
                     else:
-                        mask[positive_sample_index.index(first_ans_tk) - start + j] = 1
+                        mask[positive_sample_index.index(first_ans_tk) - start_idx + j] = 1
                 else:
                     sample = positive_sample[:]
                     sample_index = positive_sample_index[:]
