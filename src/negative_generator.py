@@ -275,8 +275,8 @@ if __name__ == "__main__":
         
         print(i, 'negative0:', np.array(embedded_sentences).shape)
 
-    batch_size = 10 # default: len(article_ids)
-    start = 0 # index
+    batch_size = 0 # default: len(article_ids)
+    start = 2000 # index
 
     negative1_batch, doc_id_batch = [], []
     for i in range(start, batch_size + start):
@@ -297,13 +297,15 @@ if __name__ == "__main__":
         negative1_batch.append(negative1_samples)
         doc_id_batch += rand_doc_ids
 
+        print('%s add to batch' % i)
+
         negative = {
                 'article_ids': rand_doc_ids, 
                 'question_id': i + 1, 
                 'samples': negative1_samples, 
         }
 
-        out_file_name1 = '%snegative1_question%s.json' % (OUTPUT_PATH1, i)
+        out_file_name1 = '%snegative1_question%s.json' % (OUTPUT_PATH1, i + start)
         with open(out_file_name1, 'w', encoding='utf-8-sig', errors='ignore') as f:
             json.dump(negative, f, ensure_ascii=False)
 
@@ -322,14 +324,12 @@ if __name__ == "__main__":
     
     vocab_wvs = get_vocab_wvs(wv_path, vocabs=batch_vocabs)
     
-    es_batch = []
     for i in range(len(negative1_batch)):
         embedded_sentences = []
         for j in range(len(negative1_batch[i])):
-            es = vectorize_tokens(negative1_samples[i], vocab_wvs)
+            es = vectorize_tokens(negative1_batch[i][j], vocab_wvs)
             embedded_sentences.append(es)
-        es_batch.append(es)
         
-        out_file_name1_npy = '%snegative1_question%s.npy' % (OUTPUT_PATH1_NPY, i)
+        out_file_name1_npy = '%snegative1_question%s.npy' % (OUTPUT_PATH1_NPY, start + i)
         np.save(out_file_name1_npy, np.asarray(embedded_sentences))
-        print(i, 'negative1:', np.array(embedded_sentences).shape)
+        print(i + start, 'negative1:', np.array(embedded_sentences).shape)
