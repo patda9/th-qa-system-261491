@@ -97,9 +97,9 @@ TKNED_DOCS_PATH = 'D:/Users/Patdanai/th-qasys-db/tokenized_wiki_corpus/'
 TKNED_DOCS_PATH = 'C:/Users/Patdanai/Desktop/tokenized-th-wiki/'
 MAX_SENTENCE_LENGTH = 80
 OUTPUT_PATH = 'D:/Users/Patdanai/th-qasys-db/positive_sentences/'
-OUTPUT_PATH = 'C:/Users/Patdanai/Desktop/492/positive/tokenized/'
+OUTPUT_PATH = 'C:/Users/Patdanai/Desktop/492/positive/positive_tokenized/'
 OUTPUT_PATH_NPY = 'D:/Users/Patdanai/th-qasys-db/positive_embedded/'
-OUTPUT_PATH_NPY = 'C:/Users/Patdanai/Desktop/492/positive/embedded/'
+OUTPUT_PATH_NPY = 'C:/Users/Patdanai/Desktop/492/positive/positive_embedded/'
 
 wv_path = 'C:/Users/Patdanai/Desktop/261499-nlp/lab/cc.th.300.vec'
 if __name__ == "__main__":
@@ -115,8 +115,8 @@ if __name__ == "__main__":
         preprocessed_doc = preprocess_document(current_doc)
         batch_vocabs += preprocessed_doc
 
-    batch_vocabs.remove('')
     batch_vocabs = set(batch_vocabs)
+    batch_vocabs.remove('')
 
     vocab_wvs = get_vocab_wvs(wv_path, vocabs=batch_vocabs)
 
@@ -281,8 +281,8 @@ if __name__ == "__main__":
         out_file_name = '%spositive_question%s.json' % (OUTPUT_PATH, i)
         out_file_name_npy = '%spositive_question%s.npy' % (OUTPUT_PATH_NPY, i)
 
-        # with open(out_file_name, 'w', encoding='utf-8-sig', errors='ignore') as f:
-        #     json.dump(positive_samples, f, ensure_ascii=False)
+        with open(out_file_name, 'w', encoding='utf-8-sig', errors='ignore') as f:
+            json.dump(positive_samples, f, ensure_ascii=False)
 
         np.save(out_file_name_npy, np.asarray(embedded_sentences))
         print(i, 'positive:', np.array(embedded_sentences).shape)
