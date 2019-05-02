@@ -12,6 +12,16 @@ from keras.callbacks import ModelCheckpoint
 from keras.layers import BatchNormalization, Bidirectional, Concatenate, Dense, Flatten, GRU, Input, Lambda, LSTM, Masking, multiply, Permute, RepeatVector
 from keras.models import load_model, Model, Sequential
 
+# seed
+np.random.seed(0)
+
+# file i/o paths
+p_path = 'D:/Users/Patdanai/th-qasys-db/positive_embedded/positive_embedded/'
+n0_path = 'D:/Users/Patdanai/th-qasys-db/n0_embedded/n0_embedded/'
+n1_path = 'D:/Users/Patdanai/th-qasys-db/n1_embedded/n1_embedded/'
+dataset_paths = [p_path, n0_path, n1_path]
+
+# model hyperparameters
 hidden_nodes = 16
 rnn_units = 64
 sl = 40
@@ -25,8 +35,96 @@ def attention_layer(inputs, time_step):
     output_attention = multiply([inputs, a_probs], name='multiply_attention')
     return output_attention
 
+def fscore(y_true, y_pred):
+    beta = 1
+    if K.sum(K.round(K.clip(y_true, 0, 1))) == 0:
+        return 0
+    p = precision(y_true, y_pred)
+    r = recall(y_true, y_pred)
+    bb = beta ** 2
+    fbeta_score = (1 + bb) * (p * r) / (bb * p + r + K.epsilon())
+    return fbeta_score
+
 def get_input(input_path):
     return np.load(input_path)
+
+def get_training_set(dataset_paths, batch_size=4000, samples_per_file=5):
+    if(samples_per_file > 5):
+        print('samples per file must be in range [0, 5]')
+        return
+
+    files = np.random.permutation(os.listdir(dataset_paths[0]))
+    
+    for f_name in files:
+        q_idx = f_name.replace('positive_question', '').replace('.npy', '')
+        print(q_idx)
+        
+        positive_s = get_input(dataset_paths[0] + f_name)[:samples_per_file]
+        print(positive_s.shape)
+        exit()
+
+    return 1
+
+def plot_confusion_matrix(y_true, y_pred, classes, cmap=plt.cm.Blues,
+                        normalize=0, save_path=None, title=None, verbose=1):
+    
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting ``normalize=True``.
+    """
+
+    if(not title):
+        if(normalize):
+            title = 'Normalized confusion matrix'
+        else:
+            title = 'Confusion matrix, without normalization'
+
+    cm = confusion_matrix(y_true, y_pred)
+
+    if(normalize):
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    if(verbose):
+        print(cm)
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
+    ax.figure.colorbar(im, ax=ax)
+
+    ax.set(xticks=np.arange(cm.shape[1]),
+           yticks=np.arange(cm.shape[0]),
+           xticklabels=classes, yticklabels=classes,
+           title=title,
+           ylabel='Actual',
+           xlabel='Predicted')
+
+    plt.setp(ax.get_xticklabels(), rotation=0, ha="right",
+            rotation_mode="anchor")
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, format(cm[i, j], fmt),
+                    ha="center", va="center",
+                    color="white" if cm[i, j] > thresh else "black")
+    fig.tight_layout()
+    return ax
+
+def precision(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
+
+def recall(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
 
 def sequence_generator(files, label_path, batch_size=512):
     # files => os.listdir
@@ -107,3 +205,5 @@ if __name__ == "__main__":
     # form model
     model = Model(inputs=[q_seq, s_seq], outputs=similarity)
     model.summary()
+
+    training_set = get_training_set(dataset_paths, samples_per_file=1)
