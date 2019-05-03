@@ -93,9 +93,9 @@ def get_dataset_set(dataset_paths, batch_size=4000, samples_per_file=5):
                 negative_s = np.concatenate((negative_s, negative1_s), axis=0)
         else:
             n0_instance = samples_per_file // 2
-            negative0_s = get_input(dataset_paths[1] + 'negative0_question%s.npy' % q_idx)[:n0_instance]
+            negative0_s = np.random.permutation(get_input(dataset_paths[1] + 'negative0_question%s.npy' % q_idx))[:n0_instance]
             n1_instance = samples_per_file - negative0_s.shape[0]
-            negative1_s = get_input(dataset_paths[2] + 'negative1_question%s.npy' % q_idx)[:n1_instance]
+            negative1_s = np.random.permutation(get_input(dataset_paths[2] + 'negative1_question%s.npy' % q_idx))[:n1_instance]
             
             temp = np.concatenate((negative0_s, negative1_s), axis=0)
             negative_s = np.concatenate((negative_s, temp), axis=0)
@@ -150,7 +150,7 @@ def plot_confusion_matrix(y_true, y_pred, classes, cmap=plt.cm.Blues,
            ylabel='Actual',
            xlabel='Predicted')
 
-    plt.setp(ax.get_xticklabels(), rotation=0, ha="right",
+    plt.setp(ax.get_xticklabels(), rotation=0, ha="center",
             rotation_mode="anchor")
 
     fmt = '.2f' if normalize else 'd'

@@ -6,7 +6,7 @@ import re
 from pprint import pprint
 
 answers_detail = None
-with open('./data/new_sample_questions.json', encoding='utf-8-sig') as f:
+with open('./data/nsc_questions_answers.json', encoding='utf-8-sig') as f:
     answers_detail = (json.load(f))['data']
 
 article_ids = []
