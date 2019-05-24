@@ -1,5 +1,5 @@
 # A Thai machine-learning based question-answering system from text source input project.
----
+
 # Dataset description ([Google Drive](https://drive.google.com/drive/folders/1pPRewSKGxsbJSL4Zpfeydbormtf4vTml))
 ## Sentence Vectors Comparison Model training data
 ### data/compare_model_fasttext_dataset/
@@ -85,5 +85,23 @@ print(data)
 
 ## fastText Thai pre-trained word vectors
 ### data/fasttext_th_wv/
+> Description: This is word vectors for 2,000,000 Thai words trained from Thai Wikipedia.
+
+> คำอธิบาย: ไฟล์เวกเตอร์ของคำที่ถูก Train ด้วยวิกิพีเดียภาษาไทยจำนวน 2,000,000 คำ
+
+Usage:
+```
+fp = open('cc.th.300.vec', encoding='utf-8-sig')
+vocab_wvs = {}
+line_count = 0
+for line in fp:
+    if(line_count > 0):
+        line = line.split()
+        if(line[0] in vocabs):
+            vocab_wvs[line[0]] = line[1:]
+            vocab_count += 1
+    line_count += 1
+```
+
 ## Tokenized Thai Wikipedia articles using "deepcut" model
 ### data/tokenized_th_wiki/
