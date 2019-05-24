@@ -1,32 +1,32 @@
 # A Thai machine-learning based question-answering system from text source input project.
-
+---
 # Dataset description ([Google Drive](https://drive.google.com/drive/folders/1pPRewSKGxsbJSL4Zpfeydbormtf4vTml))
 ## Sentence Vectors Comparison Model training data
 ### data/compare_model_fasttext_dataset/
 * positive_sentences.zip
-> Description: Similar sentences based on 4,000 NSC 2018 questions use for question-answer sentences training
+> Description: Similar sentences based on 4,000 NSC 2018 questions use for question-answer sentences training.
 
 > คำอธิบาย: ประโยคที่เหมือนซึ่งมาจาก 4,000 คำถามจาก NSC 2018 ใช้ในการสอนให้โมเดลเรียนรู้ความสัมพันธ์ของประโยคคำถามกับประโยคคำตอบ
 * positive_embedded.zip
-> Description: 
+> Description: positive_sentences in fastText vector representation form.
 
-> คำอธิบาย: 
+> คำอธิบาย: ประโยคเดียวกันกับ positive_sentences แต่อยู่ในรูปเวกเตอร์จากโมเดล fastText
 * negative0.zip
-> Description: Dissimilar sentences based on 4,000 NSC 2018 questions and come from the same article with positive sentences use for question-answer sentences training
+> Description: Dissimilar sentences based on 4,000 NSC 2018 questions and come from the same article with positive sentences use for question-answer sentences training.
 
 > คำอธิบาย: ประโยคที่ไม่เหมือนซึ่งมาจาก 4,000 คำถามจาก NSC 2018 และอยู่ในบทความเดียวกับประโยคที่เหมือนใช้ในการสอนให้โมเดลเรียนรู้ความสัมพันธ์ของประโยคคำถามกับประโยคที่ไม่ใช่คำตอบ
 * negative0_embedded.zip
-> Description: 
+> Description: negative0 in fastText vector representation form.
 
-> คำอธิบาย: 
+> คำอธิบาย: ประโยคเดียวกันกับ negative0 แต่อยู่ในรูปเวกเตอร์จากโมเดล fastText
 * negative1.zip
 > Description: Dissimilar sentences based on 4,000 NSC 2018 questions and come from the different article with positive sentences use for question-answer sentences training
 
 > คำอธิบาย: ประโยคที่ไม่เหมือนซึ่งมาจาก 4,000 คำถามจาก NSC 2018 แต่ไม่ได้อยู่ภายในบทความเดียวกับประโยคที่เหมือนใช้ในการสอนให้โมเดลเรียนรู้ความสัมพันธ์ของประโยคคำถามกับประโยคที่ไม่ใช่คำตอบ
 * negative1_embedded.zip
-> Description: 
+> Description: negative1 in fastText vector representation form.
 
-> คำอธิบาย: 
+> คำอธิบาย: ประโยคเดียวกันกับ negative1 แต่อยู่ในรูปเวกเตอร์จากโมเดล fastText
 
 
 ## Thai questions about articles in Wikipedia for question-answering
@@ -57,7 +57,7 @@ Example:
 
 &nbsp;&nbsp;&nbsp;&nbsp;"question": "กระทรวงโฆษณาแถลงข่าวและโฆษณาชวนเชื่อของนาซีเยอรมนี ก่อตั้งขึ้นในปี ค.ศ. ใด", 
 
-&nbsp;&nbsp;&nbsp;&nbsp;"answer":"ปี 1933", 
+&nbsp;&nbsp;&nbsp;&nbsp;"answer": "ปี 1933", 
 
 &nbsp;&nbsp;&nbsp;&nbsp;"answer_begin_position ": 304, 
 
