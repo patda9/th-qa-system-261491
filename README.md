@@ -22,13 +22,21 @@ data = json.load(fp)['data']
 ```
 This will get list of 4,000 question answer objects.
 Example: 
+
 {
+
 &nbsp;&nbsp;&nbsp;&nbsp;"question_id": 4,
+
 &nbsp;&nbsp;&nbsp;&nbsp;"question": "กระทรวงโฆษณาแถลงข่าวและโฆษณาชวนเชื่อของนาซีเยอรมนี ก่อตั้งขึ้นในปี ค.ศ. ใด", 
+
 &nbsp;&nbsp;&nbsp;&nbsp;"answer":"ปี 1933", 
+
 &nbsp;&nbsp;&nbsp;&nbsp;"answer_begin_position ": 304, 
+
 &nbsp;&nbsp;&nbsp;&nbsp;"answer_end_position": 311,
+
 &nbsp;&nbsp;&nbsp;&nbsp;"article_id": 547560
+
 }
 
 * tokenized_questions.json
@@ -43,6 +51,7 @@ data = json.load(fp)[3]
 print(data)
 ```
 "print(data)" will show
+
 ['กระทรวง', 'โฆษณา', 'แถลง', 'ข่าว', 'และ', 'โฆษณาชวนเชื่อ', 'ของ', 'นาซี', 'เยอรมนี', ' ', 'ก่อตั้ง', 'ขึ้น', 'ใน', 'ปี', ' ', 'ค.ศ.', ' ', 'ใด']
 
 ## fastText Thai pre-trained word vectors
