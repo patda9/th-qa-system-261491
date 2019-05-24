@@ -54,7 +54,7 @@ fp = open('tokenized_questions.json', encoding='utf-8-sig')
 data = json.load(fp)[3]
 print(data)
 ```
-"print(data)" will show
+**print(data)** will show
 
 ['กระทรวง', 'โฆษณา', 'แถลง', 'ข่าว', 'และ', 'โฆษณาชวนเชื่อ', 'ของ', 'นาซี', 'เยอรมนี', ' ', 'ก่อตั้ง', 'ขึ้น', 'ใน', 'ปี', ' ', 'ค.ศ.', ' ', 'ใด']
 
