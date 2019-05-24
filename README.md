@@ -8,10 +8,12 @@
 ### data/nsc_2018_question/
 * embedded_questions_4000_40_300.zip
 > Description: fastText embedding questions, each question has equal length of 40 words and each word is embedded with 300 dimensional vector. (for question that has less than 40 words are padded with zero vector)
+
 > คำอธิบาย: ไฟล์ประโยคที่แต่ละคำถูกเข้ารหัสด้วยโมเดล fastText ซึ่งแต่ละประโยคมีความยาวเท่ากันที่ 40 คำและแต่ละคำถูกแทนด้วยเวกเตอร์ขนาด 300 มิติ (ประโยคที่ยาวน้อยกว่า 40 คำจะถูกแทนด้วยเวกเตอร์ศูนย์)
 
 * nsc_question_answers.json
 > Description: This file provides question's answer details which consist of answer, answer beginning character position, answer endding character position, article ID, question and question ID in JSON object form.
+
 > คำอธิบาย: ไฟล์เฉลยของคำถาม NSC 2018 จำนวน 4,000 คำถาม ประกอบด้วย คำตอบ, ตำแหน่งของตัวอักษรแรกของคำตอบ, ตำแหน่งของตัวอักษรสุดท้ายของคำตอบ, บทความของคำตอบ, คำถาม และเลขที่ของคำถามในรูปแบบ JSON object
 
 Usage: 
@@ -21,6 +23,7 @@ fp = open('nsc_question_answers.json', encoding='utf-8-sig')
 data = json.load(fp)['data']
 ```
 This will get list of 4,000 question answer objects.
+
 Example: 
 
 {
@@ -41,6 +44,7 @@ Example:
 
 * tokenized_questions.json
 > Description: This file provides list of 4,000 tokenized questions using deepcut model.
+
 > คำอธิบาย: ไฟล์คำถามที่ถูกตัดคำ (tokenize) แล้วซึ่งเป็นลิสต์ของคำถามจำนวน 4,000 คำถามที่ถูกตัดคำด้วยโมเดล deepcut
 
 Usage: 
