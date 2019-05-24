@@ -102,6 +102,9 @@ for line in fp:
             vocab_count += 1
     line_count += 1
 ```
+All words in **vocabs** those pass condition **if(line[0] in vocabs):** will be represented by fastText vectors
+
+**vocab_wvs** is now a key-value dictionary which key is Thai word and value is 300 dimensional vector.
 
 ## Tokenized Thai Wikipedia articles using "deepcut" model
 ### data/tokenized_th_wiki/
