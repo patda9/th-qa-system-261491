@@ -139,3 +139,6 @@ All words in **vocabs** those pass condition **if(line[0] in vocabs):** will be 
 > Description: This file provides 125,302 tokenized Thai Wikipedia articles using deepcut model.
 
 > คำอธิบาย: ไฟล์ของบทความที่ถูกตัดคำแล้วด้วยโมเดล deepcut จำนวน 125,302 บทความ
+
+## Source
+[GitHub](https://github.com/patda9/th-qa-system-261491/blob/master/README.md)
