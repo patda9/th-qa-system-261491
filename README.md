@@ -1,5 +1,20 @@
 # A Thai machine-learning based question-answering system from text source input project.
 ## Environment setup
+### This project uses Python 3.6.8 in development
+### Create virtual environment
+```
+python -m venv VENV_NAME
+```
+> Note: VENV_NAME can be any folder name
+### Activate virtual environment (Windows 10)
+```
+VENV_NAME/Script/activate.ps1
+```
+> For those who face system execution policy error may relax the system execution policy to allow running of local scripts without verifying the code signature using the following 
+```
+PS C:\> Set-ExecutionPolicy RemoteSigned
+```
+### Install python dependencies
 ```
 pip install -r requirements.txt
 ```
