@@ -1,4 +1,9 @@
 # A Thai machine-learning based question-answering system from text source input project.
+## Environment setup
+```
+pip install -r requirements.txt
+```
+> Note: For CPU computing change tensorflow-gpu in requirements.txt to tensorflow
 
 # Dataset description ([Google Drive](https://drive.google.com/drive/folders/1pPRewSKGxsbJSL4Zpfeydbormtf4vTml))
 ## Sentence Vectors Comparison Model training data
