@@ -28,6 +28,20 @@
 
 > คำอธิบาย: ประโยคเดียวกันกับ negative1 แต่อยู่ในรูปเวกเตอร์จากโมเดล fastText
 
+> Note: All files in these zipped folders are named by (question ID - 1) to refer to specific article  หมายเหตุ: ไฟล์ทุกไฟล์ในไฟล์ zip ถูกตั้งชื่อด้วย (เลขคำถาม - 1) เพื่อที่จะระบุบทความนั้นๆ
+
+Example: 
+
+positive_sentence_question0.json
+
+{
+    &nbsp;&nbsp;&nbsp;&nbsp;"article_id": 115035, 
+    &nbsp;&nbsp;&nbsp;&nbsp;"question_id": 1, 
+    &nbsp;&nbsp;&nbsp;&nbsp;"sample_answer_maks": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+    &nbsp;&nbsp;&nbsp;&nbsp;"sample_character_range": [[499, 503], [503, 507], [507, 510], [510, 513], [513, 516], [516, 519], [520, 524], [524, 527], [528, 537], [539, 543], [544, 548], [551, 555], [556, 560], [562, 564], [564, 568], [568, 571], [572, 574], [575, 577], [577, 581], [581, 583]], "sample_index": [141, 142, 143, 144, 145, 146, 148, 149, 151, 154, 156, 160, 162, 165, 166, 167, 169, 171, 172, 173], 
+    &nbsp;&nbsp;&nbsp;&nbsp;"sample_sentence": ["แสดง", "เป็น", "เบน", "จี้", "ตัว", "แรก", "ชื่อ", "ว่า", "ฮิกกิ้นส์", "พ.ศ.", "2502", "พ.ศ.", &nbsp;&nbsp;&nbsp;&nbsp;"2518", "มี", "อายุ", "ถึง", "15", "ปี", "แล้ว", "ใน"]}, 
+    &nbsp;&nbsp;&nbsp;&nbsp;...,
+}
 
 ## Thai questions about articles in Wikipedia for question-answering
 ### data/nsc_2018_question/
@@ -108,3 +122,6 @@ All words in **vocabs** those pass condition **if(line[0] in vocabs):** will be 
 
 ## Tokenized Thai Wikipedia articles using "deepcut" model
 ### data/tokenized_th_wiki/
+> Description: This file provides 125,302 tokenized Thai Wikipedia articles using deepcut model.
+
+> คำอธิบาย: ไฟล์ของบทความที่ถูกตัดคำแล้วด้วยโมเดล deepcut จำนวน 125,302 บทความ
