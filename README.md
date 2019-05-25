@@ -33,22 +33,16 @@
 Example: 
 
 positive_sentence_question0.json
-
+```
 {
-    &nbsp;&nbsp;&nbsp;&nbsp;"article_id": 115035, 
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;"question_id": 1, 
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;"sample_answer_maks": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;"sample_character_range": [[499, 503], [503, 507], [507, 510], [510, 513], [513, 516], [516, 519], [520, 524], [524, 527], [528, 537], [539, 543], [544, 548], [551, 555], [556, 560], [562, 564], [564, 568], [568, 571], [572, 574], [575, 577], [577, 581], [581, 583]], "sample_index": [141, 142, 143, 144, 145, 146, 148, 149, 151, 154, 156, 160, 162, 165, 166, 167, 169, 171, 172, 173], 
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;"sample_sentence": ["แสดง", "เป็น", "เบน", "จี้", "ตัว", "แรก", "ชื่อ", "ว่า", "ฮิกกิ้นส์", "พ.ศ.", "2502", "พ.ศ.", "2518", "มี", "อายุ", "ถึง", "15", "ปี", "แล้ว", "ใน"]}, 
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;...,
-    
+    "article_id": 115035, 
+    "question_id": 1, 
+    "sample_answer_maks": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+    "sample_character_range": [[499, 503], [503, 507], [507, 510], [510, 513], [513, 516], [516, 519], [520, 524], [524, 527], [528, 537], [539, 543], [544, 548], [551, 555], [556, 560], [562, 564], [564, 568], [568, 571], [572, 574], [575, 577], [577, 581], [581, 583]], "sample_index": [141, 142, 143, 144, 145, 146, 148, 149, 151, 154, 156, 160, 162, 165, 166, 167, 169, 171, 172, 173], 
+    "sample_sentence": ["แสดง", "เป็น", "เบน", "จี้", "ตัว", "แรก", "ชื่อ", "ว่า", "ฮิกกิ้นส์", "พ.ศ.", "2502", "พ.ศ.", "2518", "มี", "อายุ", "ถึง", "15", "ปี", "แล้ว", "ใน"]}, 
+    ...,
 }
-
+```
 ## Thai questions about articles in Wikipedia for question-answering
 ### data/nsc_2018_question/
 * embedded_questions_4000_40_300.zip
@@ -70,23 +64,16 @@ data = json.load(fp)['data']
 This will get list of 4,000 question answer objects.
 
 Example: 
-
+```
 {
-
-&nbsp;&nbsp;&nbsp;&nbsp;"question_id": 4,
-
-&nbsp;&nbsp;&nbsp;&nbsp;"question": "กระทรวงโฆษณาแถลงข่าวและโฆษณาชวนเชื่อของนาซีเยอรมนี ก่อตั้งขึ้นในปี ค.ศ. ใด", 
-
-&nbsp;&nbsp;&nbsp;&nbsp;"answer": "ปี 1933", 
-
-&nbsp;&nbsp;&nbsp;&nbsp;"answer_begin_position ": 304, 
-
-&nbsp;&nbsp;&nbsp;&nbsp;"answer_end_position": 311,
-
-&nbsp;&nbsp;&nbsp;&nbsp;"article_id": 547560
-
+"question_id": 4,
+"question": "กระทรวงโฆษณาแถลงข่าวและโฆษณาชวนเชื่อของนาซีเยอรมนี ก่อตั้งขึ้นในปี ค.ศ. ใด", 
+"answer": "ปี 1933", 
+"answer_begin_position ": 304, 
+"answer_end_position": 311,
+"article_id": 547560
 }
-
+```
 * tokenized_questions.json
 > Description: This file provides list of 4,000 tokenized questions using deepcut model.
 
@@ -100,9 +87,9 @@ data = json.load(fp)[3]
 print(data)
 ```
 **print(data)** will show
-
+```
 ['กระทรวง', 'โฆษณา', 'แถลง', 'ข่าว', 'และ', 'โฆษณาชวนเชื่อ', 'ของ', 'นาซี', 'เยอรมนี', ' ', 'ก่อตั้ง', 'ขึ้น', 'ใน', 'ปี', ' ', 'ค.ศ.', ' ', 'ใด']
-
+```
 ## fastText Thai pre-trained word vectors
 ### data/fasttext_th_wv/
 > Description: This is word vectors for 2,000,000 Thai words trained from Thai Wikipedia.
