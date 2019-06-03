@@ -18,7 +18,7 @@ PS C:\> Set-ExecutionPolicy RemoteSigned
 ```
 pip install -r requirements.txt
 ```
-> Note: For CPU computing change tensorflow-gpu in requirements.txt to tensorflow
+> Note: This environment uses GPU Computing, for CPU computing change tensorflow-gpu in requirements.txt to tensorflow
 
 # Dataset description ([Google Drive](https://drive.google.com/drive/folders/1pPRewSKGxsbJSL4Zpfeydbormtf4vTml))
 ## Sentence Vectors Comparison Model training data
